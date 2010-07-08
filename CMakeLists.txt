@@ -70,6 +70,9 @@ add_library(boost_task
   )
 
 
+add_subdirectory(libs/nff)
+add_subdirectory(tools/nff)
+
 add_subdirectory(libs/obj)
 add_subdirectory(tools/obj)
 
