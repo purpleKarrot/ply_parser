@@ -70,5 +70,8 @@ add_library(boost_task
   )
 
 
+add_subdirectory(libs/obj)
+add_subdirectory(tools/obj)
+
 add_subdirectory(libs/ply)
 add_subdirectory(tools/ply)
