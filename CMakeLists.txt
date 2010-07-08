@@ -69,6 +69,10 @@ add_library(boost_task
   ${TASK_SRC}/detail/wsq.cpp
   )
 
+include(AddReference)
+include(AddDocumentation)
+set(THIS_PROJECT_NAME Chunk)
+add_subdirectory(doc EXCLUDE_FROM_ALL)
 
 add_subdirectory(libs/nff)
 add_subdirectory(tools/nff)

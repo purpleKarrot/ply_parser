@@ -1,0 +1,9 @@
+[library Chunk
+  [quickbook 1.5]
+  [authors [Pfeifer, Daniel]]
+  [copyright 2010 Daniel Pfeifer]
+  [purpose chunk loader for large files]
+]
+
+[include ply.qbk]
+[xinclude chunk-ref.xml]

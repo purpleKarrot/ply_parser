@@ -1,9 +1,7 @@
-The PLY Polygon File Format
----------------------------
+[section The PLY Polygon File Format]
+(c) 1998 Greg Turk
 
-Introduction
-------------
-
+[section Introduction]
 This document presents the PLY polygon file format, a format for storing
 graphical objects that are described as a collection of polygons.  Our goal is
 to provide a format that is simple and easy to implement but that is general
@@ -12,10 +10,9 @@ sub-formats: an ASCII representation for easily getting started, and a binary
 version for compact storage and for rapid saving and loading.  We hope that
 this format will promote the exchange of graphical object between programs and
 also between groups of people.
+[endsect]
 
-Overview
---------
-
+[section Overview]
 Anyone who has worked in the field of computer graphics for even a short 
 time knows about the bewildering array of storage formats for graphical 
 objects.  It seems as though every programmer creates a new file format for 
@@ -59,10 +56,9 @@ type and define the properties associated with this element.  Examples of new
 elements are edges, cells (lists of pointers to faces) and materials (ambient,
 diffuse and specular colors and coefficients).  New elements can also be
 carried along or discarded by programs that do not understand them.
+[endsect]
 
-File Structure
---------------
-
+[section File Structure]
 This is the structure of a typical PLY file:
 
   Header
@@ -85,31 +81,31 @@ comments in brackets are NOT part of the file, they are annotations to this
 example.  Comments in files are ordinary keyword-identified lines that begin
 with the word "comment".
 
-ply
-format ascii 1.0           { ascii/binary, format version number }
-comment made by anonymous  { comments keyword specified, like all lines }
-comment this file is a cube
-element vertex 8           { define "vertex" element, 8 of them in file }
-property float32 x         { vertex contains float "x" coordinate }
-property float32 y         { y coordinate is also a vertex property }
-property float32 z         { z coordinate, too }
-element face 6             { there are 6 "face" elements in the file }
-property list uint8 int32 vertex_index { "vertex_indices" is a list of ints }
-end_header                 { delimits the end of the header }
-0 0 0                      { start of vertex list }
-0 0 1
-0 1 1
-0 1 0
-1 0 0
-1 0 1
-1 1 1
-1 1 0
-4 0 1 2 3                  { start of face list }
-4 7 6 5 4
-4 0 4 5 1
-4 1 5 6 2
-4 2 6 7 3
-4 3 7 4 0
+  ply
+  format ascii 1.0           { ascii/binary, format version number }
+  comment made by anonymous  { comments keyword specified, like all lines }
+  comment this file is a cube
+  element vertex 8           { define "vertex" element, 8 of them in file }
+  property float32 x         { vertex contains float "x" coordinate }
+  property float32 y         { y coordinate is also a vertex property }
+  property float32 z         { z coordinate, too }
+  element face 6             { there are 6 "face" elements in the file }
+  property list uint8 int32 vertex_index { "vertex_indices" is a list of ints }
+  end_header                 { delimits the end of the header }
+  0 0 0                      { start of vertex list }
+  0 0 1
+  0 1 1
+  0 1 0
+  1 0 0
+  1 0 1
+  1 1 1
+  1 1 0
+  4 0 1 2 3                  { start of face list }
+  4 7 6 5 4
+  4 0 4 5 1
+  4 1 5 6 2
+  4 2 6 7 3
+  4 3 7 4 0
 
 This example demonstrates the basic components of the header.  Each part of
 the header is a carraige-return terminated ASCII string that begins with a
@@ -122,27 +118,28 @@ number.  Next is the description of each of the elements in the polygon
 file, and within each element description is the specification of the
 properties.  Then generic element description has this form:
 
-element <element-name> <number-in-file>
-property <data-type> <property-name-1>
-property <data-type> <property-name-2>
-property <data-type> <property-name-3>
-...
+  element <element-name> <number-in-file>
+  property <data-type> <property-name-1>
+  property <data-type> <property-name-2>
+  property <data-type> <property-name-3>
+  ...
 
 The properties listed after an "element" line define both the data type of the 
 property and also the order in which the property appears for each element.  
 There are three kinds of data types a property may have: scalar, string and
 list.  Here is a list of the scalar data types a property may have:
 
-name        type        number of bytes
----------------------------------------
-int8       character                 1
-uint8      unsigned character        1
-int16      short integer             2
-uint16     unsigned short integer    2
-int32      integer                   4
-uint32     unsigned integer          4
-float32    single-precision float    4
-float64    double-precision float    8
+[table
+ [[name]    [type]                   [number of bytes]]
+ [[int8]    [character]              [1]]
+ [[uint8]   [unsigned character]     [1]]
+ [[int16]   [short integer]          [2]]
+ [[uint16]  [unsigned short integer] [2]]
+ [[int32]   [integer]                [4]]
+ [[uint32]  [unsigned integer]       [4]]
+ [[float32] [single-precision float] [4]]
+ [[float64] [double-precision float] [8]]
+]
 
 These byte counts are important and must not vary across implementations in
 order for these files to be portable.  There is a special form of property
@@ -158,52 +155,51 @@ This means that the property "vertex_index"  contains first an unsigned char
 telling how many indices the property contains, followed by a list containing
 that many integers.  Each integer in this variable-length list is an index to
 a vertex.
+[endsect]
 
-Another Example
----------------
-
+[section Another Example]
 Here is another cube definition:
 
-ply
-format ascii 1.0
-comment author: anonymous
-comment object: another cube
-element vertex 8
-property float32 x
-property float32 y
-property float32 z
-property red uint8                     { start of vertex color }
-property green uint8
-property blue uint8
-element face 7
-property list uint8 int32 vertex_index { number of vertices for each face }
-element edge 5                         { five edges in object }
-property int32 vertex1                 { index to first vertex of edge }
-property int32 vertex2                 { index to second vertex }
-property uint8 red                     { start of edge color }
-property uint8 green
-property uint8 blue
-end_header
-0 0 0 255 0 0                          { start of vertex list }
-0 0 1 255 0 0
-0 1 1 255 0 0
-0 1 0 255 0 0
-1 0 0 0 0 255
-1 0 1 0 0 255
-1 1 1 0 0 255
-1 1 0 0 0 255
-3 0 1 2                           { start of face list, begin with a triangle }
-3 0 2 3                           { another triangle }
-4 7 6 5 4                         { now some quadrilaterals }
-4 0 4 5 1
-4 1 5 6 2
-4 2 6 7 3
-4 3 7 4 0
-0 1 255 255 255                   { start of edge list, begin with white edge }
-1 2 255 255 255
-2 3 255 255 255
-3 0 255 255 255
-2 0 0 0 0                         { end with a single black line }
+  ply
+  format ascii 1.0
+  comment author: anonymous
+  comment object: another cube
+  element vertex 8
+  property float32 x
+  property float32 y
+  property float32 z
+  property red uint8                     { start of vertex color }
+  property green uint8
+  property blue uint8
+  element face 7
+  property list uint8 int32 vertex_index { number of vertices for each face }
+  element edge 5                         { five edges in object }
+  property int32 vertex1                 { index to first vertex of edge }
+  property int32 vertex2                 { index to second vertex }
+  property uint8 red                     { start of edge color }
+  property uint8 green
+  property uint8 blue
+  end_header
+  0 0 0 255 0 0                          { start of vertex list }
+  0 0 1 255 0 0
+  0 1 1 255 0 0
+  0 1 0 255 0 0
+  1 0 0 0 0 255
+  1 0 1 0 0 255
+  1 1 1 0 0 255
+  1 1 0 0 0 255
+  3 0 1 2                           { start of face list, begin with a triangle }
+  3 0 2 3                           { another triangle }
+  4 7 6 5 4                         { now some quadrilaterals }
+  4 0 4 5 1
+  4 1 5 6 2
+  4 2 6 7 3
+  4 3 7 4 0
+  0 1 255 255 255                   { start of edge list, begin with white edge }
+  1 2 255 255 255
+  2 3 255 255 255
+  3 0 255 255 255
+  2 0 0 0 0                         { end with a single black line }
 
 This file specifies a red, green and blue value for each vertex.  To
 illustrate the variable-length nature of vertex_index, the first two faces of
@@ -214,30 +210,29 @@ edge.  Each edge also has a color.  The five edges defined above were
 specified so as to highlight the two triangles in the file.  The first four
 edges are white, and they surround the two triangles.  The final edge is
 black, and it is the edge that separates the triangles.
+[endsect]
 
-User-Defined Elements
----------------------
-
+[section User-Defined Elements]
 The examples above showed the use of three elements: vertices, faces and 
 edges.  The PLY format allows users to define their own elements as well.  
 The format for defining a new element is exactly the same as for vertices, 
 faces and edges.  Here is the section of a header that defines a material 
 property:
 
-element material 6
-property ambient_red uint8               { ambient color }
-property ambient_green uint8
-property ambient_blue uint8
-property ambient_coeff float32
-property diffuse_red uint8               { diffuse color }
-property diffuse_green uint8
-property diffuse_blue uint8
-property diffuse_coeff float32
-property specular_red uint8              { specular color }
-property specular_green uint8
-property specular_blue uint8
-property specular_coeff float32
-property specular_power float32          { Phong power }
+  element material 6
+  property ambient_red uint8               { ambient color }
+  property ambient_green uint8
+  property ambient_blue uint8
+  property ambient_coeff float32
+  property diffuse_red uint8               { diffuse color }
+  property diffuse_green uint8
+  property diffuse_blue uint8
+  property diffuse_coeff float32
+  property specular_red uint8              { specular color }
+  property specular_green uint8
+  property specular_blue uint8
+  property specular_coeff float32
+  property specular_power float32          { Phong power }
 
 These lines would appear in the header directly after the specification of
 vertices, faces and edges.  If we want each vertex to have a material
@@ -259,7 +254,6 @@ elements for this purpose (adding the radius property to each), we can make
 use of programs that manipulate and display vertices and edges.  Clearly one
 should not create special elements for triangles and quadrilaterals, but
 instead use the face element.
+[endsect]
 
-
-(c) 1998 Greg Turk
-
+[endsect]
