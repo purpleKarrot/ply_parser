@@ -16,8 +16,8 @@ set(FIBER_SRC
   ${CMAKE_BINARY_DIR}/externals/boost.fiber-0.5.0/libs/fiber/src)
 
 if(NOT EXISTS ${FIBER_SRC})
-  extract(${CMAKE_SOURCE_DIR}/externals/boost.fiber-0.5.0.zip
-    ${CMAKE_BINARY_DIR}/externals)
+  extract(${CMAKE_SOURCE_DIR}/externals/boost.fiber-0.5.0.tar.gz
+    ${CMAKE_BINARY_DIR}/externals/boost.fiber-0.5.0)
 endif(NOT EXISTS ${FIBER_SRC})
 
 include_directories(${CMAKE_BINARY_DIR}/externals/boost.fiber-0.5.0)
@@ -44,8 +44,8 @@ set(TASK_SRC
   ${CMAKE_BINARY_DIR}/externals/boost.task-0.4.2/libs/task/src)
 
 if(NOT EXISTS ${TASK_SRC})
-  extract(${CMAKE_SOURCE_DIR}/externals/boost.task-0.4.2.zip
-    ${CMAKE_BINARY_DIR}/externals)
+  extract(${CMAKE_SOURCE_DIR}/externals/boost.task-0.4.2.tar.gz
+    ${CMAKE_BINARY_DIR}/externals/boost.task-0.4.2)
 endif(NOT EXISTS ${TASK_SRC})
 
 include_directories(${CMAKE_BINARY_DIR}/externals/boost.task-0.4.2)
