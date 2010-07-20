@@ -5,5 +5,9 @@
   [purpose chunk loader for large files]
 ]
 
+[section Intro]
+blah..
+[endsect]
+
 [include ply.qbk]
 [xinclude chunk-ref.xml]
