@@ -16,7 +16,7 @@ endfunction(EXTRACT ARCHIVE DIRECTORY)
 
 
 find_package(ZLIB REQUIRED)
-find_package(Boost REQUIRED COMPONENTS thread system)
+find_package(Boost REQUIRED COMPONENTS iostreams system thread)
 include(${CMAKE_SOURCE_DIR}/externals/UseBoostFiber.cmake)
 include(${CMAKE_SOURCE_DIR}/externals/UseBoostTask.cmake)
 
@@ -35,6 +35,8 @@ include(AddReference)
 include(AddDocumentation)
 set(THIS_PROJECT_NAME Chunk)
 add_subdirectory(doc EXCLUDE_FROM_ALL)
+
+add_subdirectory(tests)
 
 add_subdirectory(libs/nff)
 add_subdirectory(tools/nff)

@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <boost/optional.hpp>
-//#include <boost/la/all.hpp>
 
 namespace stream
 {
@@ -19,9 +18,6 @@ struct mat4x4
 	float m[16];
 };
 
-//typedef boost::la::vec<float, 3> vec3;
-//typedef boost::la::mat<float, 4, 4> mat4x4;
-
 enum endian_t
 {
 	little, big
@@ -29,17 +25,7 @@ enum endian_t
 
 enum type_t
 {
-	float_,
-	double_,
-	uint8_,
-	int8_,
-	uint16_,
-	int16_,
-	uint32_,
-	int32_,
-	uint64_,
-	int64_,
-	unknown_,
+	float_, double_, uint8_, int8_, uint16_, int16_, uint32_, int32_, uint64_, int64_, unknown_,
 };
 
 struct attribute

@@ -131,7 +131,8 @@ public:
 	class list_property_definition_callbacks_type
 	{
 	private:
-		template<typename T> struct pair_with: boost::mpl::pair<T, boost::mpl::_>
+		template<typename T>
+		struct pair_with: boost::mpl::pair<T, boost::mpl::_>
 		{
 		};
 
