@@ -3,7 +3,8 @@
 
 #include <tr1/cstdint>
 
-namespace ply {
+namespace ply
+{
 
 typedef std::tr1::int8_t int8;
 typedef std::tr1::int16_t int16;
@@ -14,7 +15,7 @@ typedef std::tr1::uint32_t uint32;
 typedef float float32;
 typedef double float64;
 
-template <typename ScalarType>
+template<typename ScalarType>
 struct type_traits;
 
 #ifdef PLY_TYPE_TRAITS
@@ -42,7 +43,10 @@ PLY_TYPE_TRAITS(float64, "float64", "double")
 #undef PLY_TYPE_TRAITS
 
 typedef int format_type;
-enum format { ascii_format, binary_little_endian_format, binary_big_endian_format };
+enum format
+{
+	ascii_format, binary_little_endian_format, binary_big_endian_format
+};
 
 } // namespace ply
 
