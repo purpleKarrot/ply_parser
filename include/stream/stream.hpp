@@ -3,7 +3,8 @@
 
 #include <string>
 #include <vector>
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
+//#include <boost/function.hpp>
 
 namespace stream
 {
@@ -18,7 +19,7 @@ struct mat4x4
 	float m[16];
 };
 
-enum endian_t
+enum endian_type
 {
 	little, big
 };
@@ -39,6 +40,11 @@ struct attribute
 
 struct element
 {
+	element(const std::string& name) :
+		name(name), count(0), offset(0)
+	{
+	}
+
 	std::string name;
 	std::size_t count;
 	std::size_t offset;
@@ -48,7 +54,7 @@ struct element
 struct header
 {
 	vec3 min, max;
-	endian_t endian;
+	endian_type endian;
 	mat4x4 transform;
 	std::vector<element> elements;
 };

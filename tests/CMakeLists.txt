@@ -1,11 +1,13 @@
 
 include(AddTestModule)
 
-file(COPY ${CMAKE_SOURCE_DIR}/data/bunny.ply.gz
-  DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB DATA_FILES ${CMAKE_SOURCE_DIR}/data/*)
+file(COPY ${DATA_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_module(ply_test
   ply_gz.cpp
+  stream.cpp
+  stream_spirit.cpp
   )
 
 target_link_libraries(ply_test

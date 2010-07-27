@@ -1,4 +1,7 @@
+[teletype]
+
 [section The PLY Polygon File Format]
+
 (c) 1998 Greg Turk
 
 [section Introduction]
@@ -111,7 +114,7 @@ This example demonstrates the basic components of the header.  Each part of
 the header is a carraige-return terminated ASCII string that begins with a
 keyword.  Even the start and end of the header ("ply<cr>" and
 "end_header<cr>") are in this form.  The characters "ply<cr>" must be the
-first four characters of the file, since they serve as the file�s magic
+first four characters of the file, since they serve as the file's magic
 number.  Following the start of the header is the keyword "format" and a
 specification of either ASCII or binary format, followed by a version
 number.  Next is the description of each of the elements in the polygon
@@ -188,18 +191,18 @@ Here is another cube definition:
   1 0 1 0 0 255
   1 1 1 0 0 255
   1 1 0 0 0 255
-  3 0 1 2                           { start of face list, begin with a triangle }
-  3 0 2 3                           { another triangle }
-  4 7 6 5 4                         { now some quadrilaterals }
+  3 0 1 2                                { start of face list, begin with a triangle }
+  3 0 2 3                                { another triangle }
+  4 7 6 5 4                              { now some quadrilaterals }
   4 0 4 5 1
   4 1 5 6 2
   4 2 6 7 3
   4 3 7 4 0
-  0 1 255 255 255                   { start of edge list, begin with white edge }
+  0 1 255 255 255                        { start of edge list, begin with white edge }
   1 2 255 255 255
   2 3 255 255 255
   3 0 255 255 255
-  2 0 0 0 0                         { end with a single black line }
+  2 0 0 0 0                              { end with a single black line }
 
 This file specifies a red, green and blue value for each vertex.  To
 illustrate the variable-length nature of vertex_index, the first two faces of
