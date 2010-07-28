@@ -1,6 +1,5 @@
 #include "stream/stream.hpp"
 #include <boost/fusion/adapted/struct.hpp>
-//#include <adapt_la_vec.hpp>
 
 BOOST_FUSION_ADAPT_STRUCT(stream::attribute,
 		(std::string, name)
@@ -13,7 +12,7 @@ BOOST_FUSION_ADAPT_STRUCT(stream::attribute,
 BOOST_FUSION_ADAPT_STRUCT(stream::header,
 		(stream::vec3, min)
 		(stream::vec3, max)
-		//		(boost::optional<stream::endian_t>, endian)
+		(boost::optional<stream::endian_type>, endian)
 		//		(boost::optional<stream::mat4x4>, transform)
 		//		(std::vector<stream::element>, elements)
 )

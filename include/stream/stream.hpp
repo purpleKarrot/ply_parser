@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-//#include <boost/optional.hpp>
+#include <boost/optional.hpp>
 //#include <boost/function.hpp>
 
 namespace stream
@@ -54,7 +54,7 @@ struct element
 struct header
 {
 	vec3 min, max;
-	endian_type endian;
+	boost::optional<endian_type> endian;
 	mat4x4 transform;
 	std::vector<element> elements;
 };

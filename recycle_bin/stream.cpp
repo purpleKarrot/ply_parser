@@ -19,38 +19,6 @@ namespace ascii = boost::spirit::ascii;
 #include <boost/spirit/include/phoenix_fusion.hpp>
 
 
-std::string header = //
-//	"# stream_process data set header\n"
-//	"\n"
-//	"# == globals ==\n"
-//	"\n"
-//	"min -0.12144980579614639 0.03641635924577713 0.041934516280889511\n"
-//	"max 0.034249193966388702 0.15708965063095093 0.19626812636852264\n"
-//	"\n"
-//	"endian big\n"
-//	"\n"
-//	"transform 1 0 0 -0.026759909465909004 0 0 -1 0.095216058194637299 0 1 0 0.008947114460170269 0 0 0 1\n"
-	"\n"
-	"# == vertex ==\n"
-	"\n"
-	"element vertex\n"
-//	"vertex count 35947\n"
-//	"vertex offset 0\n"
-//	"\n"
-//	"# element, attribute-identifier, name, type,  array_size, size_in_bytes, flags\n"
-//	"vertex attribute    position        float           3       12      0\n"
-//	"vertex attribute    confidence      float           1       4       0\n"
-//	"vertex attribute    intensity       float           1       4       0\n"
-	"\n"
-	"# == face ==\n"
-	"\n"
-	"element face\n"
-//	"face count 69451\n"
-//	"\n"
-//	"# element, attribute-identifier, name, type,  array_size, size_in_bytes, flags\n"
-//	"face attribute      vertex_indices  uint32          3       12      0\n"
-;
-
 struct endian_: boost::spirit::qi::symbols<char, stream::endian_t>
 {
 	endian_()
