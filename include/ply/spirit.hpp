@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/variant.hpp>
 
 namespace ply
 {
@@ -36,10 +37,11 @@ struct list_type
 	data_type t2;
 };
 
+typedef boost::variant<list_type, data_type> single_or_list_type;
+
 struct property
 {
-	//	boost::variant<list_type, data_type> type;
-	data_type type;
+	single_or_list_type type;
 	std::string name;
 };
 
@@ -65,12 +67,18 @@ BOOST_FUSION_ADAPT_STRUCT(ply::format_version,
 		(double, version)
 )
 
+BOOST_FUSION_ADAPT_STRUCT(ply::list_type,
+		(ply::data_type, t1)
+		(ply::data_type, t2)
+)
+
 BOOST_FUSION_ADAPT_STRUCT(ply::header,
 		(ply::format_version, format)
+		(std::vector<ply::element>, elements)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(ply::property,
-		(ply::data_type, type)
+		(ply::single_or_list_type, type)
 		(std::string, name)
 )
 
@@ -86,20 +94,23 @@ namespace ply
 {
 
 template<typename Iterator, typename Skipper>
-struct ply_parser: boost::spirit::qi::grammar<Iterator, ply::header(), Skipper>
+struct header_grammar: boost::spirit::qi::grammar<Iterator, ply::header(), Skipper>
 {
-	ply_parser() :
-		ply_parser::base_type(start)
+	header_grammar() :
+		header_grammar::base_type(start)
 	{
 		namespace qi = boost::spirit::qi;
 		namespace ascii = boost::spirit::ascii;
 
-		start %= qi::eps > magic_ > format_p> *element_ > end_header_;
+		start %= qi::eps > magic_ > format_p > *element_ > end_header_;
 		magic_ %= qi::lit("ply") > qi::eol;
 		format_p %= qi::lit("format") > format_ > qi::double_ > qi::eol;
-		property_ %= qi::lit("property") > type_ > *(ascii::char_ - qi::eol) > qi::eol;
+		property_ %= qi::lit("property") > sol_ > *(ascii::char_ - qi::eol) > qi::eol;
 		element_ %= qi::lit("element") > *(ascii::char_ - qi::int_) > qi::int_ > qi::eol > *property_;
 		end_header_ %= qi::lit("end_header") > qi::eol;
+
+		list_ %= qi::lit("list") > type_ > type_;
+		sol_ %= list_ | type_;
 
 		type_.add
 			("int8",    ply::int8   )("char",    ply::int8   )
@@ -125,6 +136,9 @@ struct ply_parser: boost::spirit::qi::grammar<Iterator, ply::header(), Skipper>
 	boost::spirit::qi::rule<Iterator, ply::element(), Skipper> element_;
 	boost::spirit::qi::rule<Iterator, ply::property(), Skipper> property_;
 	boost::spirit::qi::rule<Iterator, Skipper> end_header_;
+
+	boost::spirit::qi::rule<Iterator, ply::single_or_list_type(), Skipper> sol_;
+	boost::spirit::qi::rule<Iterator, ply::list_type(), Skipper> list_;
 
 	boost::spirit::qi::symbols<char, ply::data_type> type_;
 	boost::spirit::qi::symbols<char, ply::format_type> format_;

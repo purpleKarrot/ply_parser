@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(stream_spirit)
 	BOOST_AUTO(comment, qi::lit("comment") >> *(ascii::char_ - qi::eol) >> qi::eol);
 	BOOST_AUTO(skip, ascii::blank | comment);
 
-	ply::ply_parser<pos_iterator_type, BOOST_TYPEOF(skip)> parser;
+	ply::header_grammar<pos_iterator_type, BOOST_TYPEOF(skip)> parser;
 
 	// parse
 	try
@@ -66,8 +66,4 @@ BOOST_AUTO_TEST_CASE(stream_spirit)
 
 		BOOST_FAIL(msg.str());
 	}
-
-	BOOST_MESSAGE("format " << header.format.format << " " << header.format.version);
-//	BOOST_MESSAGE("max " << header.max.x << " " << header.max.y << " " << header.max.z);
-//	BOOST_MESSAGE("endian " << header.endian);
 }
