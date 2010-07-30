@@ -8,7 +8,7 @@ add_test_module(ply_test
 # ply_gz.cpp
 # stream.cpp
   ply_spirit.cpp
-# stream_spirit.cpp
+  stream_spirit.cpp
   )
 
 target_link_libraries(ply_test

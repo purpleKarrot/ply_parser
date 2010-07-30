@@ -45,9 +45,7 @@ bool ply::ply_parser::parse_header(std::istream& istream)
 		if (stringstream.eof())
 		{
 			if (warning_callback_)
-			{
 				warning_callback_(line_number_, "ignoring line ‘" + line + "’");
-			}
 		}
 		else
 		{

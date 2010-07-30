@@ -13,15 +13,15 @@ BOOST_FUSION_ADAPT_STRUCT(stream::header,
 		(stream::vec3, min)
 		(stream::vec3, max)
 		(boost::optional<stream::endian_type>, endian)
-		//		(boost::optional<stream::mat4x4>, transform)
-		//		(std::vector<stream::element>, elements)
+		(boost::optional<stream::mat4x4>, transform)
+		(std::vector<stream::element>, elements)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(stream::element,
 		(std::string, name)
-		(std::size_t, count)
-		(std::size_t, offset)
-		(std::vector<stream::attribute>, attributes)
+		(int, count)
+		(boost::optional<int>, offset)
+//		(std::vector<stream::attribute>, attributes)
 )
 
 

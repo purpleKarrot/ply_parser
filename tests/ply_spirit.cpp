@@ -17,7 +17,7 @@ namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 namespace classic = boost::spirit::classic;
 
-BOOST_AUTO_TEST_CASE(stream_spirit)
+BOOST_AUTO_TEST_CASE(ply_spirit)
 {
 	std::ifstream file("bunny.ply.gz", std::ios_base::in | std::ios_base::binary);
 	BOOST_REQUIRE(file);
@@ -48,12 +48,12 @@ BOOST_AUTO_TEST_CASE(stream_spirit)
 	BOOST_AUTO(comment, qi::lit("comment") >> *(ascii::char_ - qi::eol) >> qi::eol);
 	BOOST_AUTO(skip, ascii::blank | comment);
 
-	ply::header_grammar<pos_iterator_type, BOOST_TYPEOF(skip)> parser;
+	ply::header_grammar<pos_iterator_type, BOOST_TYPEOF(skip)> grammar;
 
 	// parse
 	try
 	{
-		qi::phrase_parse(position_begin, position_end, parser, skip, header);
+		qi::phrase_parse(position_begin, position_end, grammar, skip, header);
 	}
 	catch (const qi::expectation_failure<pos_iterator_type>& e)
 	{

@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <boost/optional.hpp>
-//#include <boost/function.hpp>
 
 namespace stream
 {
@@ -40,14 +39,9 @@ struct attribute
 
 struct element
 {
-	element(const std::string& name) :
-		name(name), count(0), offset(0)
-	{
-	}
-
 	std::string name;
-	std::size_t count;
-	std::size_t offset;
+	int count;
+	boost::optional<int> offset;
 	std::vector<attribute> attributes;
 };
 
@@ -55,7 +49,7 @@ struct header
 {
 	vec3 min, max;
 	boost::optional<endian_type> endian;
-	mat4x4 transform;
+	boost::optional<mat4x4> transform;
 	std::vector<element> elements;
 };
 
