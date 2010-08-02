@@ -26,11 +26,9 @@ BOOST_AUTO_TEST_CASE(ply_spirit)
 	inbuf.push(boost::iostreams::gzip_decompressor());
 	inbuf.push(file);
 
-	std::istream istream(&inbuf);
-
 	// iterate over stream input
 	typedef std::istreambuf_iterator<char> base_iterator_type;
-	base_iterator_type in_begin(istream);
+	base_iterator_type in_begin(&inbuf);
 
 	// convert input iterator to forward iterator, usable by spirit parser
 	typedef boost::spirit::multi_pass<base_iterator_type> forward_iterator_type;
