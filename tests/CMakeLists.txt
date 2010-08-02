@@ -5,6 +5,7 @@ file(GLOB DATA_FILES ${CMAKE_SOURCE_DIR}/data/*)
 file(COPY ${DATA_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_module(ply_test
+  mpl_ply.cpp
 # ply_gz.cpp
 # stream.cpp
   ply_spirit.cpp
