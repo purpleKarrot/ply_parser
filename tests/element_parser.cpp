@@ -36,16 +36,19 @@ BOOST_AUTO_TEST_CASE(elem_parser)
 	typedef BOOST_TYPEOF(ascii::blank) skipper_type;
 	skipper_type skipper = ascii::blank;
 
-	typedef boost::fusion::vector<int, int, int> element_type;
+	//	typedef boost::fusion::vector<int, int, int> element_type;
+	//	element_type element;
+	//
+	//	typedef qi::rule<iterator_type, element_type(), skipper_type> grammar_type;
+	//	grammar_type grammar;
+	//	grammar %= qi::eps > "3" > qi::int_ > qi::int_ > qi::int_ > qi::eol;
+
+	typedef std::vector<int> element_type;
 	element_type element;
 
-	typedef qi::rule<iterator_type, element_type(), skipper_type> grammar_type;
+	typedef qi::rule<iterator_type, element_type(), qi::locals<int>, skipper_type> grammar_type;
 	grammar_type grammar;
-	grammar %= qi::eps > "3" > qi::int_ > qi::int_ > qi::int_ > qi::eol;
-
-	//	typedef qi::rule<iterator_type, element_type(), qi::locals<int>, skipper_type> grammar_type;
-	//	grammar_type grammar;
-	//	grammar %= qi::eps > qi::int_[_a = _1] > qi::repeat(_a)[qi::int_] > qi::eol;
+	grammar %= qi::eps > qi::int_[_a = _1] > qi::repeat(_a)[qi::int_] > qi::eol;
 
 	typedef element_phrase_parser<element_type, iterator_type, skipper_type> parser_type;
 	boost::shared_ptr<parser_type> parser(new parser_type(fwd_begin, fwd_end, grammar, skipper, 5));
@@ -58,6 +61,6 @@ BOOST_AUTO_TEST_CASE(elem_parser)
 	typedef iterator<element_type, parser_type> e_iterator_type;
 	for (e_iterator_type i(parser); i != e_iterator_type(); ++i)
 	{
-		BOOST_MESSAGE("element: " << *i);
+		BOOST_MESSAGE(i->size() << ": " << (*i)[0]<< ", " << (*i)[1]<< ", " << (*i)[2]);
 	}
 }
