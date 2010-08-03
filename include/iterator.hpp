@@ -9,50 +9,10 @@
 #define ITERATOR_HPP
 
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/spirit/home/qi/nonterminal/rule.hpp>
+#include <boost/shared_ptr.hpp>
 
-// parses exactly one element (line)
-// only one parser may exist at a time (lock)
-
-template<typename Element, typename Iterator>
-class element_parser
-{
-	typedef boost::spirit::qi::rule<Iterator, Element()> grammar_type;
-
-public:
-	element_parser(Iterator begin, Iterator end, grammar_type grammar,
-		std::size_t distance_to_end) :
-		begin(begin), end(end), grammar(grammar), distance_to_end(
-			distance_to_end)
-	{
-		//lock
-	}
-
-	~element_parser()
-	{
-		//unlock
-	}
-
-	bool parse(Element& element)
-	{
-		qi::phrase_parse(begin, end, grammar, element);
-		distance_to_end--;
-		return end_reached;
-	}
-
-private:
-	Iterator begin, end;
-
-	std::size_t distance_to_end;
-
-	grammar_type grammar;
-
-	lock_type lock;
-};
-
-template<typename Parser>
-class iterator: public boost::iterator_facade<iterator,
-	typename Parser::element_type, boost::single_pass_traversal_tag>
+template<typename Element, typename Parser>
+class iterator: public boost::iterator_facade<iterator<Element, Parser> , Element, boost::single_pass_traversal_tag>
 {
 public:
 	iterator()
@@ -70,7 +30,7 @@ public:
 	{
 	}
 
-	~istream_iterator()
+	~iterator()
 	{
 	}
 
@@ -79,24 +39,26 @@ private:
 
 	void increment()
 	{
-		if (!parser.parse(value))
+		if (parser && !parser->parse(value))
 			parser.reset();
 	}
 
 	bool equal(iterator const& other) const
 	{
-		return parser && other.parser //
-			&& parser->distance_to_end == other.parser->distance_to_end;
+		if (!parser && !other.parser)
+			return true;
+
+		return parser && other.parser && parser->distance_to_end == other.parser->distance_to_end;
 	}
 
-	const value_type& dereference() const
+	Element& dereference() const
 	{
 		return value;
 	}
 
 private:
 	boost::shared_ptr<Parser> parser;
-	value_type value;
+	mutable Element value;
 };
 
 #endif /* ITERATOR_HPP */
