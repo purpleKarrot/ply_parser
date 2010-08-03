@@ -10,10 +10,15 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_multi_pass.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
 #include <fstream>
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
+using namespace qi::labels;
 
 BOOST_AUTO_TEST_CASE(elem_parser)
 {
@@ -38,7 +43,11 @@ BOOST_AUTO_TEST_CASE(elem_parser)
 	grammar_type grammar;
 	grammar %= qi::eps > "3" > qi::int_ > qi::int_ > qi::int_ > qi::eol;
 
-	typedef element_parser<element_type, iterator_type, skipper_type> parser_type;
+	//	typedef qi::rule<iterator_type, element_type(), qi::locals<int>, skipper_type> grammar_type;
+	//	grammar_type grammar;
+	//	grammar %= qi::eps > qi::int_[_a = _1] > qi::repeat(_a)[qi::int_] > qi::eol;
+
+	typedef element_phrase_parser<element_type, iterator_type, skipper_type> parser_type;
 	boost::shared_ptr<parser_type> parser(new parser_type(fwd_begin, fwd_end, grammar, skipper, 5));
 
 	//	while (parser->parse(element))

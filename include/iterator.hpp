@@ -12,7 +12,8 @@
 #include <boost/shared_ptr.hpp>
 
 template<typename Element, typename Parser>
-class iterator: public boost::iterator_facade<iterator<Element, Parser> , Element, boost::single_pass_traversal_tag>
+class iterator: public boost::iterator_facade<iterator<Element, Parser> ,
+		Element, boost::single_pass_traversal_tag>
 {
 public:
 	iterator()
@@ -45,10 +46,8 @@ private:
 
 	bool equal(iterator const& other) const
 	{
-		if (!parser && !other.parser)
-			return true;
-
-		return parser && other.parser && parser->distance_to_end == other.parser->distance_to_end;
+		return (!parser && !other.parser) || (parser && other.parser
+				&& parser->distance_to_end == other.parser->distance_to_end);
 	}
 
 	Element& dereference() const
