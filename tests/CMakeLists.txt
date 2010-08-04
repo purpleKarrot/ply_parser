@@ -12,7 +12,7 @@ include_directories(
 
 add_definitions(-Winvalid-pch)
 
-add_pch(PRECOMPILED precompiled.hpp)
+#add_pch(PRECOMPILED precompiled.hpp)
 
 add_test_module(ply_test
   element_parser.cpp
@@ -21,7 +21,7 @@ add_test_module(ply_test
 # stream.cpp
 # ply_spirit.cpp
 # stream_spirit.cpp
-  ${PRECOMPILED}
+# ${PRECOMPILED}
   )
 
 target_link_libraries(ply_test
