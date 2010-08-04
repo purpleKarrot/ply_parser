@@ -18,6 +18,8 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <fstream>
 
+#include <ply/symbols.hpp>
+
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
@@ -27,7 +29,8 @@ template<typename T, typename Iterator, typename Skipper>
 struct rule
 {
 	typedef qi::rule<Iterator, T(), Skipper> type;
-	typedef qi::symbols<char, type> parser;
+	typedef ply::scalar_symbols<type> symbol;
+//	typedef qi::symbols<char, type> parser;
 };
 
 BOOST_AUTO_TEST_CASE(elem_parser)
@@ -48,22 +51,25 @@ BOOST_AUTO_TEST_CASE(elem_parser)
 
 	typedef rule<int, iterator_type, skipper_type> rule_type;
 
-	rule_type::parser type_parser;
-	type_parser.add("int", qi::int_)("double", qi::double_);
+	rule_type::symbol type_parser;
+
+//	type_parser.add
+//		("int", qi::int_)
+//		("short", qi::short_)
+//		("ushort", qi::ushort_)
+//		("double", qi::double_)
+//	;
 
 	rule_type::type rule;
 
 	int value;
 
-	BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, type_parser, skipper, rule));
-	BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, rule>qi::eol, skipper, value));
-	BOOST_MESSAGE(value);
+	int lines = 6;
 
-	BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, type_parser, skipper, rule));
-	BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, rule>qi::eol, skipper, value));
-	BOOST_MESSAGE(value);
-
-	BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, type_parser, skipper, rule));
-	BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, rule>qi::eol, skipper, value));
-	BOOST_MESSAGE(value);
+	while (lines--)
+	{
+		BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, type_parser, skipper, rule));
+		BOOST_REQUIRE(qi::phrase_parse(fwd_begin, fwd_end, rule>qi::eol, skipper, value));
+		BOOST_MESSAGE(value);
+	}
 }

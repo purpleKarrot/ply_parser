@@ -1,3 +1,6 @@
 int      12
 double 4352.2341
-int      13
+int     -13
+uchar    33
+char     23
+int    1234
