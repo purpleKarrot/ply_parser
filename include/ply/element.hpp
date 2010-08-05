@@ -8,8 +8,16 @@
 #ifndef ELEMENT_HPP
 #define ELEMENT_HPP
 
-#include <boost/fusion/support/is_sequence.hpp>
-#include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/sequence.hpp>
+#include <boost/fusion/mpl.hpp>
+#include <boost/mpl/transform.hpp>
+#include <boost/spirit/home/qi/nonterminal/rule.hpp>
+
+//template<typename Seq, int N>
+//boost::fusion::extension::struct_member_name<Seq, N>::type member_name()
+//{
+//	return boost::fusion::extension::struct_member_name<Seq, N>::call();
+//}
 
 namespace ply
 {
@@ -17,12 +25,19 @@ namespace ply
 template<typename Properties>
 struct element
 {
-	typedef boost::mpl::if_<boost::fusion::traits::is_sequence<Properties>,
-		Properties, boost::fusion::vector<Properties> > properties;
+	typedef typename boost::fusion::result_of::as_vector<Properties>::type properties_type;
 
+	template<typename Iterator, typename Skipper>
+	struct rules
+	{
+		template<typename T>
+		struct rule
+		{
+			typedef boost::spirit::qi::rule<Iterator, T(), Skipper> type;
+		};
 
-
-	//	BOOST_MPL_ASSERT((boost::fusion::traits::is_sequence<Properties>));
+		typedef typename boost::mpl::transform<properties_type, rule<boost::mpl::_1> >::type type;
+	};
 };
 
 } // namespace ply
