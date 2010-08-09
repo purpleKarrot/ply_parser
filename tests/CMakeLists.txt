@@ -15,7 +15,8 @@ add_definitions(-Winvalid-pch)
 add_pch(PRECOMPILED precompiled.hpp)
 
 add_test_module(ply_test
-  element_parser.cpp
+  rule.cpp
+# element_parser.cpp
 # mpl_ply.cpp
 # ply_gz.cpp
 # stream.cpp
