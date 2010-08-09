@@ -20,7 +20,25 @@
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
+namespace phoenix = boost::phoenix;
+
 using namespace qi::labels;
+
+template<typename Iterator, typename Skipper>
+struct list_grammar: boost::spirit::qi::grammar<Iterator, std::vector<int>(), qi::locals<int>, Skipper>
+{
+	list_grammar() :
+		list_grammar::base_type(start)
+	{
+		start %= qi::eps[phoenix::clear(_val)] > size_(_a) > list_(_a) > qi::eol;
+		size_ %= qi::omit[qi::int_[_r1 = _1]];
+		list_ %= qi::repeat(_r1)[qi::int_];
+	}
+
+	boost::spirit::qi::rule<Iterator, std::vector<int>(), qi::locals<int>, Skipper> start;
+	boost::spirit::qi::rule<Iterator, void(int&), Skipper> size_;
+	boost::spirit::qi::rule<Iterator, std::vector<int>(int), Skipper> list_;
+};
 
 BOOST_AUTO_TEST_CASE(elem_parser)
 {
@@ -48,9 +66,10 @@ BOOST_AUTO_TEST_CASE(elem_parser)
 	typedef std::vector<int> element_type;
 	element_type element;
 
-	typedef qi::rule<iterator_type, element_type(), qi::locals<int>, skipper_type> grammar_type;
+	typedef list_grammar<iterator_type, skipper_type> grammar_type;
+	//	typedef qi::rule<iterator_type, element_type(), qi::locals<int>, skipper_type> grammar_type;
 	grammar_type grammar;
-	grammar %= qi::eps > qi::int_[_a = _1] > qi::repeat(_a)[qi::int_] > qi::eol;
+	//	grammar %= qi::eps > qi::int_[_a = _1] > qi::repeat(_a)[qi::int_] > qi::eol;
 
 	typedef element_phrase_parser<element_type, iterator_type, skipper_type> parser_type;
 	boost::shared_ptr<parser_type> parser(new parser_type(fwd_begin, fwd_end, grammar, skipper, 5));
