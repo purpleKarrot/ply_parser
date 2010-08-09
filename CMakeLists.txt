@@ -19,8 +19,8 @@ endfunction(EXTRACT ARCHIVE DIRECTORY)
 
 find_package(ZLIB REQUIRED)
 find_package(Boost REQUIRED COMPONENTS iostreams system thread)
-include(${CMAKE_SOURCE_DIR}/externals/UseBoostFiber.cmake)
-include(${CMAKE_SOURCE_DIR}/externals/UseBoostTask.cmake)
+#include(${CMAKE_SOURCE_DIR}/externals/UseBoostFiber.cmake)
+#include(${CMAKE_SOURCE_DIR}/externals/UseBoostTask.cmake)
 
 
 extract(${CMAKE_SOURCE_DIR}/externals/libzio-0.99.tar.gz
@@ -40,11 +40,11 @@ add_subdirectory(doc EXCLUDE_FROM_ALL)
 
 add_subdirectory(tests)
 
-add_subdirectory(libs/nff)
-add_subdirectory(tools/nff)
+#add_subdirectory(libs/nff)
+#add_subdirectory(tools/nff)
 
-add_subdirectory(libs/obj)
-add_subdirectory(tools/obj)
+#add_subdirectory(libs/obj)
+#add_subdirectory(tools/obj)
 
-add_subdirectory(libs/ply)
-add_subdirectory(tools/ply)
+#add_subdirectory(libs/ply)
+#add_subdirectory(tools/ply)

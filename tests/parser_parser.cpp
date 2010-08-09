@@ -33,7 +33,7 @@ struct rule
 //	typedef qi::symbols<char, type> parser;
 };
 
-BOOST_AUTO_TEST_CASE(elem_parser)
+BOOST_AUTO_TEST_CASE(parser_parser)
 {
 	std::ifstream file("parser.txt");
 
