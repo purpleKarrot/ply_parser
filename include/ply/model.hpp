@@ -11,9 +11,15 @@
 namespace ply
 {
 
-template<typename Elements>
-struct model
+template<typename ... Elements>
+class model
 {
+public:
+	model()
+	{
+	}
+
+private:
 
 };
 

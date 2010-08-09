@@ -1,0 +1,41 @@
+[c++]
+
+[section PLY: highest abstraction level]
+
+   struct vertex
+   {
+      float x;
+      float y;
+      float z;
+      float confidence;
+      float intensity;
+   };
+   
+   struct face
+   {
+      std::vector<int> vertex_indices;
+   };
+
+   PLY_ADAPT(vertex,
+      (float, x)
+      (float, y)
+      (float, z)
+      (float, confidence)
+      (float, intensity)
+   )
+   
+   PLY_ADAPT(face,
+      (std::vector<int>, vertex_indices)
+   )
+
+   int main()
+   {
+      ply::model<vertex, face> mymodel("model.ply.gz");
+      ply::range<vertex> vertex_range = mymodel.range<vertex>(0, 100);
+      
+      std::vector<vertex> vertex_vector(vertex_range.size());
+      std::copy(vertex_range.begin(), vetex_range.end(), vertex_vector.begin()); 
+      ...
+   }
+
+[endsect]

@@ -1,4 +1,4 @@
-[library Chunk
+[library JunkLoad
   [quickbook 1.5]
   [authors [Pfeifer, Daniel]]
   [copyright 2010 Daniel Pfeifer]
@@ -10,4 +10,6 @@ blah..
 [endsect]
 
 [include ply.qbk]
+[include ply_chunk.qbk]
+[include ply_model.qbk]
 [xinclude chunk-ref.xml]

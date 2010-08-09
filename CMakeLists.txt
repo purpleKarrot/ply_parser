@@ -35,8 +35,8 @@ include_directories(include ${CMAKE_BINARY_DIR}/include)
 
 include(AddReference)
 include(AddDocumentation)
-set(THIS_PROJECT_NAME Chunk)
-add_subdirectory(doc EXCLUDE_FROM_ALL)
+set(THIS_PROJECT_NAME JunkLoad)
+add_subdirectory(doc)
 
 add_subdirectory(tests)
 
