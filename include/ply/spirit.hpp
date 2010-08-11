@@ -103,11 +103,11 @@ struct header_grammar: boost::spirit::qi::grammar<Iterator, ply::header(), Skipp
 		namespace ascii = boost::spirit::ascii;
 
 		start %= qi::eps > magic_ > format_p > *element_ > end_header_;
-		magic_ %= qi::lit("ply") > qi::eol;
-		format_p %= qi::lit("format") > format_ > qi::double_ > qi::eol;
-		property_ %= qi::lit("property") > sol_ > *(ascii::char_ - qi::eol) > qi::eol;
-		element_ %= qi::lit("element") > *(ascii::char_ - qi::int_) > qi::int_ > qi::eol > *property_;
-		end_header_ %= qi::lit("end_header") > qi::eol;
+		magic_ %= "ply" > qi::eol;
+		format_p %= "format" > format_ > qi::double_ > qi::eol;
+		property_ %= "property" > sol_ > *(ascii::char_ - qi::eol) > qi::eol;
+		element_ %= "element" > *(ascii::char_ - qi::int_) > qi::int_ > qi::eol > *property_;
+		end_header_ %= "end_header" > qi::eol;
 
 		list_ %= qi::lit("list") > type_ > type_;
 		sol_ %= list_ | type_;

@@ -64,4 +64,7 @@ BOOST_AUTO_TEST_CASE(ply_spirit)
 
 		BOOST_FAIL(msg.str());
 	}
+
+	BOOST_MESSAGE(header.elements[0].name);
+	BOOST_MESSAGE(header.elements[1].name);
 }

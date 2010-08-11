@@ -21,6 +21,7 @@
 
 namespace ply
 {
+namespace qi = boost::spirit::qi;
 
 template<typename Properties>
 struct element
@@ -38,6 +39,21 @@ struct element
 
 		typedef typename boost::mpl::transform<properties_type, rule<boost::mpl::_1> >::type type;
 	};
+};
+
+template<typename Element, typename Iterator, typename Skipper>
+struct element_grammar: qi::grammar<Iterator, Element(), Skipper>
+{
+	element_grammar() :
+		element_grammar::base_type(rule)
+	{
+	}
+
+	qi::rule<Iterator, Element(), Skipper> rule;
+
+//	typedef boost::spirit::qi::rule<Iterator, Element(), Skipper> parser_type;
+//
+//	typedef boost::spirit::qi::rule<Iterator, parser_type(), Skipper> parser_parser_type;
 };
 
 } // namespace ply

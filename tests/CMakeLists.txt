@@ -15,7 +15,9 @@ add_definitions(-Winvalid-pch)
 #add_pch(PRECOMPILED precompiled.hpp)
 
 add_test_module(ply_test
-  rule.cpp
+# placeholder.cpp
+  named_setter.cpp
+# rule.cpp
 # element_parser.cpp
 # parser_parser.cpp
 # element.cpp
