@@ -10,6 +10,8 @@
 #include <boost/fusion/adapted/struct.hpp>
 #include <boost/fusion/mpl/size.hpp>
 
+#include <boost/mpl/range_c.hpp>
+
 struct vertex
 {
 	float x, y, z;
@@ -17,58 +19,43 @@ struct vertex
 
 BOOST_FUSION_ADAPT_STRUCT(vertex, (float, x)(float, y)(float, z))
 
-//template<int I, int End, typename F, bool Enabled>
-//struct loop
-//{
-//	static void call()
-//	{
-//	}
-//};
-//
-//template<int I, int End, typename F>
-//struct loop<I, End, F, true>
-//{
-//	static void call()
-//	{
-//		F::call<I>();
-//		loop<I + 1, End, F, I != End>::call();
-//	}
-//};
-//
-//template<typename Seq>
-//struct foo
-//{
-//	template<int I>
-//	static void call()
-//	{
-//		using namespace boost::fusion::extension;
-//		BOOST_MESSAGE((struct_member_name<Seq, I>::call()));
-//	}
-//};
+namespace detail
+{
 
-// TODO: rewrite this using a loop
+template<typename Seq, typename Val>
+class named_setter
+{
+public:
+	named_setter(Seq& seq, const std::string& name, Val val) :
+		seq(seq), name(name), val(val)
+	{
+	}
+
+	template<typename I>
+	void operator()(I i)
+	{
+		using namespace boost::fusion::extension;
+
+		if (name == struct_member_name<Seq, I::value>::call())
+		{
+			boost::fusion::at<I>(seq) = val;
+		}
+	}
+
+private:
+	Seq& seq;
+	std::string name;
+	int val;
+};
+
+} // namespace detail
 
 template<typename Seq, typename Val>
 void named_set(Seq& seq, const std::string& name, Val val)
 {
-	using namespace boost::fusion::extension;
+	typedef boost::mpl::range_c<int, 0, boost::mpl::size<Seq>::value> indices;
 
-	BOOST_CHECK_EQUAL(boost::mpl::size<Seq>::value, 3);
-
-	if (name == struct_member_name<Seq, 0>::call())
-	{
-		boost::fusion::at_c<0>(seq) = val;
-	}
-
-	if (name == struct_member_name<Seq, 1>::call())
-	{
-		boost::fusion::at_c<1>(seq) = val;
-	}
-
-	if (name == struct_member_name<Seq, 2>::call())
-	{
-		boost::fusion::at_c<2>(seq) = val;
-	}
+	boost::mpl::for_each<indices>(detail::named_setter<Seq, Val>(seq, name, val));
 }
 
 BOOST_AUTO_TEST_CASE(named_setter)
@@ -81,6 +68,4 @@ BOOST_AUTO_TEST_CASE(named_setter)
 	BOOST_CHECK_EQUAL(v.x, 1);
 	BOOST_CHECK_EQUAL(v.y, 2);
 	BOOST_CHECK_EQUAL(v.z, 3);
-
-//	loop<0, boost::mpl::size<vertex>::value, foo<vertex> , true>::call();
 }
