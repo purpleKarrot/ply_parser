@@ -15,16 +15,16 @@ add_definitions(-Winvalid-pch)
 #add_pch(PRECOMPILED precompiled.hpp)
 
 add_test_module(ply_test
-# placeholder.cpp
+  placeholder.cpp
   named_setter.cpp
-# rule.cpp
-# element_parser.cpp
-# parser_parser.cpp
+  rule.cpp
+  element_parser.cpp
+  parser_parser.cpp
 # element.cpp
 # mpl_ply.cpp
-# ply_gz.cpp
+  ply_gz.cpp
 # stream.cpp
-# ply_spirit.cpp
+  ply_spirit.cpp
 # stream_spirit.cpp
 # ${PRECOMPILED}
   )
@@ -33,8 +33,7 @@ target_link_libraries(ply_test
   ${Boost_LIBRARIES}
   )
 
-add_custom_target(test ALL
-    ${ply_test_EXECUTABLE} --result_code=no --log_level=all
-    DEPENDS ${ply_test_EXECUTABLE}
-#   WORKING_DIRECTORY dir
-    )
+add_custom_target(test
+  ${ply_test_EXECUTABLE} --log_level=all
+  DEPENDS ${ply_test_EXECUTABLE}
+  )
