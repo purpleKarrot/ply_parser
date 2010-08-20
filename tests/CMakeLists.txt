@@ -33,7 +33,7 @@ target_link_libraries(ply_test
   ${Boost_LIBRARIES}
   )
 
-add_custom_target(test
+add_custom_target(check
   ${ply_test_EXECUTABLE} --log_level=all
   DEPENDS ${ply_test_EXECUTABLE}
   )
