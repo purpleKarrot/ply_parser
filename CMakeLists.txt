@@ -1,11 +1,12 @@
 # Copyright (c) 2010 Daniel Pfeifer
 
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-project(Chunk)
+project(ChunkLoad)
 
-#set(CMAKE_BUILD_TYPE Debug)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CToolBox)
+list(APPEND CMAKE_MODULE_PATH
+  ${CMAKE_SOURCE_DIR}/CMake
+  ${CMAKE_SOURCE_DIR}/CToolBox
+  )
 
 #add_definitions(-DFUSION_MAX_VECTOR_SIZE=20)
 
@@ -41,12 +42,3 @@ set(THIS_PROJECT_NAME JunkLoad)
 add_subdirectory(doc)
 
 add_subdirectory(tests)
-
-add_subdirectory(libs/nff)
-add_subdirectory(tools/nff)
-
-add_subdirectory(libs/obj)
-add_subdirectory(tools/obj)
-
-add_subdirectory(libs/ply)
-add_subdirectory(tools/ply)

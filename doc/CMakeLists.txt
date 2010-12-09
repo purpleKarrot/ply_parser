@@ -1,4 +1,6 @@
 
+include(UseLATEX)
+
 add_reference(chunk-ref.xml
 # ../include/nff/nff.hpp
 # ../include/nff/nff_parser.hpp
@@ -16,3 +18,5 @@ add_documentation(
   ply_model.qbk
   chunk-ref.xml
   )
+
+add_latex_document(junkload.tex)

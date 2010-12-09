@@ -5,10 +5,8 @@
  *      Author: danielp
  */
 
-#include <precompiled.hpp>
-
-#include <iterator.hpp>
-#include <element_parser.hpp>
+#include <junk/iterator.hpp>
+#include <junk/element_parser.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_multi_pass.hpp>
