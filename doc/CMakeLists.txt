@@ -19,4 +19,4 @@ add_documentation(
   chunk-ref.xml
   )
 
-add_latex_document(junkload.tex)
+add_latex_document(junkload.tex MANGLE_TARGET_NAMES)
