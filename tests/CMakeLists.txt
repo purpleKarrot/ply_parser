@@ -1,5 +1,6 @@
 
 include(AddTestModule)
+include(PurplePrecompileHeaders)
 
 set(BUNNY_TGZ ${CMAKE_SOURCE_DIR}/data/bunny.ply.gz)
 file(COPY ${BUNNY_TGZ} ${CMAKE_SOURCE_DIR}/data/faces.txt
@@ -7,12 +8,24 @@ file(COPY ${BUNNY_TGZ} ${CMAKE_SOURCE_DIR}/data/faces.txt
 execute_process(COMMAND gunzip -c ${BUNNY_TGZ}
   OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/bunny.ply)
 
-add_test_module(ply_test
+
+set(TEST_SOURCES
   header.cpp
   element.cpp
   element_parser.cpp
   complete.cpp
   )
+
+
+purple_pch_prepare(test_pch TEST_SOURCES
+  <boost/spirit/include/qi.hpp>
+  <boost/fusion/include/all.hpp>
+  )
+
+add_test_module(ply_test ${TEST_SOURCES})
+
+purple_pch_use(test_pch ply_test)
+
 
 add_custom_target(check
   ${ply_test_EXECUTABLE} --result_code=no --log_level=all

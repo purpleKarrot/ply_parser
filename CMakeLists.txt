@@ -11,9 +11,7 @@ find_package(ZLIB REQUIRED)
 find_package(Boost REQUIRED COMPONENTS iostreams system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 
-
-include_directories(include ${CMAKE_BINARY_DIR}/include)
-
+include_directories(include)
 
 include(AddReference)
 include(AddDocumentation)

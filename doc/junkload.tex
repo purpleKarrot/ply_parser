@@ -10,12 +10,12 @@
 
 \abstract
 %
-\url{http://graphics.stanford.edu/data/3Dscanrep/}
-PLY files are common
-used for big data
-often only a part of this data is required
-no routine available to get this part
-implement a generic library for this purpose
+\url{http://graphics.stanford.edu/data/3Dscanrep/}\\
+PLY files are common\\
+used for big data\\
+often only a part of this data is required\\
+no routine available to get this part\\
+implement a generic library for this purpose\\
 %
 
 \section{Introduction}
@@ -24,62 +24,62 @@ implement a generic library for this purpose
 ply.c and libply
 
 \subsubsection{ply.c}
-written in c
-old
-does not compile on modern compilers
-only covers ply core
+written in c\\
+old\\
+does not compile on modern compilers\\
+only covers ply core\\
 
 \subsubsection{libply}
 \url{http://people.cs.kuleuven.be/~ares.lagae/libply/}
-uses boost and tr1
-covers full spec
-uses callbacks (for all combination of types!)
+uses boost and tr1\\
+covers full spec\\
+uses callbacks (for all combination of types!)\\
 
 \subsection{about generic programming and concepts}
 %
-what is generic programming
-what are concepts
-which concepts are required for chunk loaders
-which concepts do different file reading libraries provide?
-can we wrap them?
-is it useful?
-conclusion: streams have to be read in one run
+what is generic programming\\
+what are concepts\\
+which concepts are required for chunk loaders\\
+which concepts do different file reading libraries provide?\\
+can we wrap them?\\
+is it useful?\\
+conclusion: streams have to be read in one run\\
 
 \subsection{multithreading}
 %
-one file!
-threadsafe, as long as each file is accessed from one thread only!
--> build single threaded, then use std::async or Boost.Thread.
+one file!\\
+threadsafe, as long as each file is accessed from one thread only!\\
+-> build single threaded, then use std::async or Boost.Thread.\\
 
 \subsection{about ply}
-different meaning of 'generic'
-handling generic data is close to impossible in static typed language
-instead, convert to the format that the user requires
-this can be achieved with generic programming
+different meaning of 'generic'\\
+handling generic data is close to impossible in static typed language\\
+instead, convert to the format that the user requires\\
+this can be achieved with generic programming\\
 
 \section{approach}
 %
-header has always the same grammar (show EBNF)
-body grammar is built from header
-lex-yacc not possible
-spirit possible
-spirit also much less verbose, direct EBNF conversion
-show header grammar in spirit
-body grammar generation
-output type cannot be build, subparser need to insert their value
+header has always the same grammar (show EBNF)\\
+body grammar is built from header\\
+lex-yacc not possible\\
+spirit possible\\
+spirit also much less verbose, direct EBNF conversion\\
+show header grammar in spirit\\
+body grammar generation\\
+output type cannot be build, subparser need to insert their value\\
 
 \section{application}
 %
 \subsection{provided}
-forward wrapper (spirit)
-line saver for error messages (spirit)
-iostream for .gz and .bz2 (iostreams)
-async (c++0x or Boost.Task or Boost.Thread?)
+forward wrapper (spirit)\\
+line saver for error messages (spirit)\\
+iostream for .gz and .bz2 (iostreams)\\
+async (c++0x or Boost.Task or Boost.Thread?)\\
 
 \subsection{custom}
-parser: parse line depending on grammar
-p\_iter: InputIterator parses input lines on increment
-interval: OutputIterator wrapper, ignore outside of interval
+parser: parse line depending on grammar\\
+p\_iter: InputIterator parses input lines on increment\\
+interval: OutputIterator wrapper, ignore outside of interval\\
 
 \section{examples}
 read interval from .ply.gz in parallel thread and enable error output.
