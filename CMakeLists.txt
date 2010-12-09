@@ -3,35 +3,14 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(ChunkLoad)
 
-list(APPEND CMAKE_MODULE_PATH
-  ${CMAKE_SOURCE_DIR}/CMake
-  ${CMAKE_SOURCE_DIR}/CToolBox
-  )
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
 
 #add_definitions(-DFUSION_MAX_VECTOR_SIZE=20)
-
-function(EXTRACT ARCHIVE DIRECTORY)
-  file(MAKE_DIRECTORY ${DIRECTORY})
-  message(STATUS "extracting ${ARCHIVE}")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${ARCHIVE}
-    WORKING_DIRECTORY ${DIRECTORY})
-endfunction(EXTRACT ARCHIVE DIRECTORY)
-
 
 find_package(ZLIB REQUIRED)
 find_package(Boost REQUIRED COMPONENTS iostreams system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 
-#include(${CMAKE_SOURCE_DIR}/externals/UseBoostFiber.cmake)
-#include(${CMAKE_SOURCE_DIR}/externals/UseBoostTask.cmake)
-
-
-extract(${CMAKE_SOURCE_DIR}/externals/libzio-0.99.tar.gz
-  ${CMAKE_BINARY_DIR}/externals/libzio-0.99)
-
-
-extract(${CMAKE_SOURCE_DIR}/externals/boost-la.tar.gz
-  ${CMAKE_BINARY_DIR}/include)
 
 include_directories(include ${CMAKE_BINARY_DIR}/include)
 
@@ -41,4 +20,5 @@ include(AddDocumentation)
 set(THIS_PROJECT_NAME JunkLoad)
 add_subdirectory(doc)
 
+add_subdirectory(externals)
 add_subdirectory(tests)
