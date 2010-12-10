@@ -10,10 +10,11 @@ execute_process(COMMAND gunzip -c ${BUNNY_TGZ}
 
 
 set(TEST_SOURCES
-  header.cpp
-  element.cpp
-  element_parser.cpp
+# header.cpp
+# element.cpp
+# element_parser.cpp
   complete.cpp
+# loader.cpp
   )
 
 
