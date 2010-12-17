@@ -1,7 +1,7 @@
 #ifndef PLY_ELEMENT_GRAMMAR_HPP
 #define PLY_ELEMENT_GRAMMAR_HPP
 
-#include <ply/types.hpp>
+#include <ply/property_parsers.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/scoped_array.hpp>
@@ -12,66 +12,8 @@
 
 namespace ply
 {
-namespace ph = boost::phoenix;
 namespace qi = boost::spirit::qi;
-
-template<typename Rule>
-//Rule ascii_omit(ply::scalar const& scalar)
-Rule ascii_omit(ply::property_type const& property_type)
-{
-	switch (boost::get<ply::scalar>(property_type))
-	{
-	case ply::uint8:
-		return qi::omit[qi::uint_parser<unsigned char>()];
-	case ply::uint16:
-		return qi::omit[qi::ushort_];
-	case ply::uint32:
-		return qi::omit[qi::uint_];
-	case ply::uint64:
-		return qi::omit[qi::ulong_long];
-	case ply::int8:
-		return qi::omit[qi::int_parser<char>()];
-	case ply::int16:
-		return qi::omit[qi::short_];
-	case ply::int32:
-		return qi::omit[qi::int_];
-	case ply::int64:
-		return qi::omit[qi::long_long];
-	case ply::float32:
-		return qi::omit[qi::float_];
-	case ply::float64:
-		return qi::omit[qi::double_];
-	}
-}
-
-template<typename Rule, typename Semantic>
-//Rule ascii_scalar(ply::scalar const& scalar, Semantic semantic)
-Rule ascii_scalar(ply::property_type const& property_type, Semantic semantic)
-{
-	switch (boost::get<ply::scalar>(property_type))
-	{
-	case ply::uint8:
-		return qi::uint_parser<unsigned char>()[semantic];
-	case ply::uint16:
-		return qi::ushort_[semantic];
-	case ply::uint32:
-		return qi::uint_[semantic];
-	case ply::uint64:
-		return qi::ulong_long[semantic];
-	case ply::int8:
-		return qi::int_parser<char>()[semantic];
-	case ply::int16:
-		return qi::short_[semantic];
-	case ply::int32:
-		return qi::int_[semantic];
-	case ply::int64:
-		return qi::long_long[semantic];
-	case ply::float32:
-		return qi::float_[semantic];
-	case ply::float64:
-		return qi::double_[semantic];
-	}
-}
+namespace ph = boost::phoenix;
 
 template<typename Iterator, typename Skipper, typename Element>
 class element_grammar: public boost::spirit::qi::grammar<Iterator, Element(), Skipper>

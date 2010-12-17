@@ -1,13 +1,20 @@
-\documentclass{article}
-
+\documentclass[a4paper,parskip=half]{scrartcl}
+%
+\usepackage{a4wide}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
 \usepackage{hyperref}
-
+\hypersetup{colorlinks=true}
+\urlstyle{same}
+%
 \title{Parsing Chunks out of PLY Files\\in a Multithreaded Environment}
 \author{Daniel Pfeifer}
 %
 \begin{document}
+%
 \maketitle
-
+%
 \abstract
 %
 \url{http://graphics.stanford.edu/data/3Dscanrep/}\\
@@ -19,6 +26,21 @@ implement a generic library for this purpose\\
 %
 
 \section{Introduction}
+The PLY file format is a simple object description that was designed as a
+convenient format for researchers who work with polygonal models.
+
+A PLY file consists of a header followed by a list of vertices and then a list of
+polygons. The header specifies how many vertices and polygons are in the file,
+and also states what properties are associated with each vertex, such as (x,y,z)
+coordinates, normals and color. The polygon faces are simply lists of indices
+into the vertex list, and each face begins with a count of the number of elements
+in each list.
+
+Source code for programs that read and write PLY files can be found in the PLY
+code archive. This archive includes programs to transform polygonal objects,
+calculate surface normals, flip faces and determine the spatial bounds of an
+object. We plan to make additional tools available in the near future.
+
 \subsection{related work}
 %
 ply.c and libply
