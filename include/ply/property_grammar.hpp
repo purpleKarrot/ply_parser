@@ -10,9 +10,9 @@
 
 #include <ply/types.hpp>
 #include <boost/spirit/include/qi.hpp>
-#include <ply/property_parsers.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
+#include <ply/property_parsers.hpp>
 
 namespace ply
 {
@@ -50,32 +50,26 @@ public:
 	// initialize the parser to omit the parsed value
 	void omit(/*ply::format format,*/ply::property_type const& property_type)
 	{
-		typedef typename factory::template visitor<void> visitor_type;
-		// start = boost::apply_visitor(visitor_type(ply::ascii), property_type);
-
-		start = boost::apply_visitor(omit_visitor<rule_type> (ply::ascii), property_type);
+		typedef typename factory::template visitor<void>::type visitor;
+		start = boost::apply_visitor(visitor(ply::ascii), property_type);
 	}
 
 	// initialize the parser to write parsed value into Element at I
 	template<typename I>
 	void init(I, /*ply::format format,*/ply::property_type const& property_type)
 	{
-		typedef typename boost::fusion::result_of::at<Element, I>::type wanted_type;
-		typedef typename factory::template visitor<wanted_type> visitor_type;
+		typedef typename boost::fusion::result_of::at<Element, I>::type type;
+		typedef typename factory::template visitor<type>::type visitor;
 
-		// typedef typename factory::template rule<wanted_type> rule_type;
-		// rule_type rule = boost::apply_visitor(visitor_type(ply::ascii), property_type);
+		// TODO: make this a member variable
+		static typename factory::template rule<type>::type rule;
 
-		using namespace qi::labels;
-		// start = rule[ph::at_c<I::value>(_r1) = _1];
-		// start = boost::apply_visitor(visitor_type(ply::ascii), property_type)[ph::at_c<I::value>(_r1) = _1];
-
-		start = ascii_scalar<rule_type> (property_type, ph::at_c<I::value>(_r1) = _1);
+		rule = boost::apply_visitor(visitor(ply::ascii), property_type);
+		start = rule(ph::at_c<I::value>(qi::_r1));
 	}
 
 private:
-	typedef qi::rule<Iterator, void(Element&), Skipper> rule_type;
-	rule_type start;
+	qi::rule<Iterator, void(Element&), Skipper> start;
 };
 
 } // namespace ply
