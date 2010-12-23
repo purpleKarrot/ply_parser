@@ -417,9 +417,13 @@ template<typename Iterator, typename Skipper>
 struct parser_factory
 {
 	template<typename T>
-	struct rule
+	struct rule: traits::rule<Iterator, Skipper, T>
 	{
-		typedef typename traits::rule<Iterator, Skipper, T>::type type;
+	};
+
+	template<typename T>
+	struct rules: boost::mpl::transform<typename boost::fusion::result_of::as_vector<T>::type, rule<boost::mpl::_1> >
+	{
 	};
 
 	template<typename T>

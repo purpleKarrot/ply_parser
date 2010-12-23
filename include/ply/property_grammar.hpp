@@ -55,14 +55,11 @@ public:
 	}
 
 	// initialize the parser to write parsed value into Element at I
-	template<typename I>
-	void init(I, /*ply::format format,*/ply::property_type const& property_type)
+	template<typename I, typename Rule>
+	void init(I, Rule& rule, /*ply::format format,*/ply::property_type const& property_type)
 	{
 		typedef typename boost::fusion::result_of::at<Element, I>::type type;
 		typedef typename factory::template visitor<type>::type visitor;
-
-		// TODO: make this a member variable
-		static typename factory::template rule<type>::type rule;
 
 		rule = boost::apply_visitor(visitor(ply::ascii), property_type);
 		start = rule(ph::at_c<I::value>(qi::_r1));

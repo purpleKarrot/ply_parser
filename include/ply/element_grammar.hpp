@@ -6,6 +6,7 @@
 #include <boost/scoped_array.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/for_each.hpp>
+#include <boost/fusion/mpl.hpp>
 
 namespace ply
 {
@@ -15,14 +16,15 @@ namespace ph = boost::phoenix;
 template<typename Iterator, typename Skipper, typename Element>
 class element_grammar: public boost::spirit::qi::grammar<Iterator, Element(), Skipper>
 {
-	BOOST_STATIC_CONSTANT(int, size = boost::mpl::size<Element>::value);
+	typedef parser_factory<Iterator, Skipper> factory;
 	typedef property_grammar<Iterator, Skipper, Element> property_parser;
-	typedef boost::scoped_array<property_parser> property_parsers_t;
+
+	typedef typename factory::template rules<Element>::type property_rules;
 
 	struct assign_grammar
 	{
-		assign_grammar(property_parser& parser, ply::property const& property) :
-			parser(parser), property(property)
+		assign_grammar(property_rules& rules, property_parser& parser, ply::property const& property) :
+			rules(rules), parser(parser), property(property)
 		{
 		}
 
@@ -31,9 +33,10 @@ class element_grammar: public boost::spirit::qi::grammar<Iterator, Element(), Sk
 		{
 			using boost::fusion::extension::struct_member_name;
 			if (property.name == struct_member_name<Element, I::value>::call())
-				parser.init(I(), property.type);
+				parser.init(I(), boost::fusion::at<I>(rules), property.type);
 		}
 
+		property_rules& rules;
 		property_parser& parser;
 		ply::property const& property;
 	};
@@ -48,7 +51,7 @@ public:
 		for (int i = 0; i < element.properties.size(); ++i)
 		{
 			property_parsers[i].omit(element.properties[i].type);
-			boost::mpl::for_each<indices>(assign_grammar(property_parsers[i], element.properties[i]));
+			boost::mpl::for_each<indices>(assign_grammar(rules, property_parsers[i], element.properties[i]));
 			start = start.copy() > property_parsers[i](qi::labels::_val);
 		}
 
@@ -57,8 +60,19 @@ public:
 	}
 
 private:
-	property_parsers_t property_parsers;
+	//
 	boost::spirit::qi::rule<Iterator, Element(), Skipper> start;
+
+	//! the number of properties in this element
+	static const int size = boost::mpl::size<Element>::value;
+
+	//! the rules to parse the properties.
+	//* The signature is 'void(T&)' and the amount is static */
+	property_rules rules;
+
+	//! the parsers for the properties.
+	//* The signature is 'void(Element&)' and the amount is dynamic */
+	boost::scoped_array<property_parser> property_parsers;
 };
 
 } // namespace ply
