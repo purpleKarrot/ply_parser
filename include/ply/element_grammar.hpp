@@ -17,7 +17,8 @@ template<typename Iterator, typename Skipper, typename Element>
 class element_grammar: public boost::spirit::qi::grammar<Iterator, Element(), Skipper>
 {
 	typedef parser_factory<Iterator, Skipper> factory;
-	typedef property_grammar<Iterator, Skipper, Element> property_parser;
+
+	typedef qi::rule<Iterator, void(Element&), Skipper> property_parser;
 
 	typedef typename factory::template rules<Element>::type property_rules;
 
@@ -32,8 +33,14 @@ class element_grammar: public boost::spirit::qi::grammar<Iterator, Element(), Sk
 		void operator()(I)
 		{
 			using boost::fusion::extension::struct_member_name;
+			typedef typename boost::fusion::result_of::at<Element, I>::type type;
+			typedef typename factory::template visitor<type>::type visitor;
+
 			if (property.name == struct_member_name<Element, I::value>::call())
-				parser.init(I(), boost::fusion::at<I>(rules), property.type);
+			{
+				boost::fusion::at<I>(rules) = boost::apply_visitor(visitor(ply::ascii), property.type);
+				parser = boost::fusion::at<I>(rules)(ph::at_c<I::value>(qi::_r1));
+			}
 		}
 
 		property_rules& rules;
@@ -50,8 +57,11 @@ public:
 		start = qi::eps;
 		for (int i = 0; i < element.properties.size(); ++i)
 		{
-			property_parsers[i].omit(element.properties[i].type);
+			typedef typename factory::template visitor<void>::type omit_visitor;
+			property_parsers[i] = boost::apply_visitor(omit_visitor(ply::ascii), element.properties[i].type);
+
 			boost::mpl::for_each<indices>(assign_grammar(rules, property_parsers[i], element.properties[i]));
+
 			start = start.copy() > property_parsers[i](qi::labels::_val);
 		}
 

@@ -36,39 +36,6 @@ struct list_grammar: qi::grammar<Iterator, void(), qi::locals<std::size_t>, Skip
 	qi::rule<Iterator, void(std::size_t), Skipper> list_;
 };
 
-template<typename Iterator, typename Skipper, typename Element>
-class property_grammar: public qi::grammar<Iterator, void(Element&), Skipper>
-{
-	typedef parser_factory<Iterator, Skipper> factory;
-
-public:
-	property_grammar() :
-		property_grammar::base_type(start)
-	{
-	}
-
-	// initialize the parser to omit the parsed value
-	void omit(/*ply::format format,*/ply::property_type const& property_type)
-	{
-		typedef typename factory::template visitor<void>::type visitor;
-		start = boost::apply_visitor(visitor(ply::ascii), property_type);
-	}
-
-	// initialize the parser to write parsed value into Element at I
-	template<typename I, typename Rule>
-	void init(I, Rule& rule, /*ply::format format,*/ply::property_type const& property_type)
-	{
-		typedef typename boost::fusion::result_of::at<Element, I>::type type;
-		typedef typename factory::template visitor<type>::type visitor;
-
-		rule = boost::apply_visitor(visitor(ply::ascii), property_type);
-		start = rule(ph::at_c<I::value>(qi::_r1));
-	}
-
-private:
-	qi::rule<Iterator, void(Element&), Skipper> start;
-};
-
 } // namespace ply
 
 #endif /* PLY_PROPERTY_GRAMMAR_HPP */
