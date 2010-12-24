@@ -4,6 +4,10 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{times}
+%
+\usepackage{listings}
+\lstset{basicstyle=\small} %,stringstyle=\ttfamily}
+%
 \usepackage{hyperref}
 \hypersetup{colorlinks=true}
 \urlstyle{same}
@@ -15,16 +19,15 @@
 %
 \maketitle
 %
-\abstract
-%
+\begin{abstract}
 \url{http://graphics.stanford.edu/data/3Dscanrep/}\\
 PLY files are common\\
 used for big data\\
 often only a part of this data is required\\
 no routine available to get this part\\
 implement a generic library for this purpose\\
+\end{abstract}
 %
-
 \section{Introduction}
 The PLY file format is a simple object description that was designed as a
 convenient format for researchers who work with polygonal models.
@@ -57,10 +60,33 @@ uses boost and tr1\\
 covers full spec\\
 uses callbacks (for all combination of types!)\\
 
-\subsection{about generic programming and concepts}
-%
-what is generic programming\\
-what are concepts\\
+Libply's ply parser supports the complete PLY file format. However, the ply
+parser is considerably more complex than parsers for other 3D file formats. This
+is because a PLY file can contain any kind of data, a PLY file consist of a
+header containing a specification of the kind of data, and the data itself. For
+more information, refer to the ply specification.
+
+Libply's Wavefront ply parser is event-based, which makes it easy to integrate
+and well suited for parsing very large files (such as the 28 million triangles
+Lucy model). Libply's Wavefront ply parser reports errors, which is especially
+useful for handling the large variety of ply files out there. Libply is a modern
+C++ library written in standard C++, and uses TR1's function objects as an
+efficient and flexible callback mechanism.
+
+\subsection{Generic Programming Techniques}
+Generic programming is about writing code that is independent of the types of
+objects being manipulated. In C++, class and function templates are particularly
+effective mechanisms for generic programming because they make the generalization
+possible without sacrificing type safety and efficiency.
+
+A concept is a set of requirements consisting of valid expressions, associated
+types, invariants, and complexity guarantees. A type that satisfies the
+requirements is said to \emph{model} the concept. A concept can extend the
+requirements of another concept, which is called \emph{refinement}.
+
+The concepts used in the C++ Standard Library are documented at the SGI STL
+site\footnote{\url{http://www.sgi.com/tech/stl/table_of_contents.html}}.
+
 which concepts are required for chunk loaders\\
 which concepts do different file reading libraries provide?\\
 can we wrap them?\\
@@ -81,6 +107,16 @@ this can be achieved with generic programming\\
 
 \section{approach}
 %
+\begin{lstlisting}
+ply      = "ply" EOL "format" format DOUBLE EOL element* "end_header" EOL;
+element  = "element" STRING INT EOL property*;
+property = "property" (list | scalar) STRING EOL;
+list     = "list" size scalar;
+format   = "ascii" | "binary_little_endian"| "binary_big_endian";
+size     = "uint8" | "uint16"| "uint32" | "uint64";
+scalar   = size | "int8" | "int16" | "int32" | "int64" | "float32" | "float64";
+\end{lstlisting}
+
 header has always the same grammar (show EBNF)\\
 body grammar is built from header\\
 lex-yacc not possible\\
