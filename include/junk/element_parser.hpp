@@ -56,7 +56,7 @@ class element_phrase_parser
 	typedef boost::spirit::qi::rule<Iterator, Element(), Skipper> grammar_type;
 
 public:
-	element_phrase_parser(Iterator begin, Iterator end, grammar_type grammar,
+	element_phrase_parser(Iterator& begin, Iterator end, grammar_type grammar,
 			Skipper skipper, std::size_t distance_to_end) :
 		begin(begin), end(end), grammar(grammar), skipper(skipper),
 				distance_to_end(distance_to_end + 1)
@@ -77,7 +77,8 @@ public:
 	}
 
 private:
-	Iterator begin, end;
+	Iterator& begin;
+	Iterator end;
 	grammar_type grammar;
 	Skipper skipper;
 

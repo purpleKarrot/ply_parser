@@ -31,6 +31,72 @@ struct rule<Iterator, Skipper, void>
 
 } // namespace traits
 
+template<typename Rule>
+class omit_visitor: public boost::static_visitor<void>
+{
+public:
+	omit_visitor(Rule& rule, ply::format format) :
+		rule(rule), format(format)
+	{
+	}
+
+	void operator()(ply::scalar property) const
+	{
+		switch (property)
+		{
+		case ply::uint8:
+			rule %= qi::uint_parser<unsigned char>();
+			break;
+		case ply::uint16:
+			rule %= qi::ushort_;
+			break;
+		case ply::uint32:
+			rule %= qi::uint_;
+			break;
+		case ply::uint64:
+			rule %= qi::ulong_long;
+			break;
+		case ply::int8:
+			rule %= qi::int_parser<char>();
+			break;
+		case ply::int16:
+			rule %= qi::short_;
+			break;
+		case ply::int32:
+			rule %= qi::int_;
+			break;
+		case ply::int64:
+			rule %= qi::long_long;
+			break;
+		case ply::float32:
+			rule %= qi::float_;
+			break;
+		case ply::float64:
+			rule %= qi::double_;
+			break;
+		}
+	}
+
+	void operator()(ply::list const& property) const
+	{
+		assert(property.count == ply::uint8);
+		assert(property.data == ply::int32);
+
+		rule %= qi::int_[qi::_a = qi::_1] > qi::repeat(qi::_a)[qi::int_];
+	}
+
+private:
+	Rule& rule;
+	ply::format format;
+};
+
+template<typename Rule>
+void assign_omit_parser(Rule& rule, ply::format format, ply::property const& property)
+{
+	typedef omit_visitor<Rule> visitor;
+	boost::apply_visitor(visitor(rule, format), property.type);
+}
+
 template<typename Iterator, typename Skipper, typename T>
 class visitor_base: public boost::static_visitor<typename traits::rule<Iterator, Skipper, T>::type>
 {
@@ -93,51 +159,52 @@ public:
 	}
 };
 
-template<typename Iterator, typename Skipper>
-class visitor<Iterator, Skipper, void> : public visitor_base<Iterator, Skipper, void>
-{
-	typedef visitor_base<Iterator, Skipper, void> super;
-	typedef typename super::rule_type rule_type;
-
-public:
-	visitor(ply::format format) :
-		super(format)
-	{
-	}
-
-	rule_type operator()(ply::scalar property) const
-	{
-		switch (property)
-		{
-		case ply::uint8:
-			return qi::omit[qi::uint_parser<unsigned char>()];
-		case ply::uint16:
-			return qi::omit[qi::ushort_];
-		case ply::uint32:
-			return qi::omit[qi::uint_];
-		case ply::uint64:
-			return qi::omit[qi::ulong_long];
-		case ply::int8:
-			return qi::omit[qi::int_parser<char>()];
-		case ply::int16:
-			return qi::omit[qi::short_];
-		case ply::int32:
-			return qi::omit[qi::int_];
-		case ply::int64:
-			return qi::omit[qi::long_long];
-		case ply::float32:
-			return qi::omit[qi::float_];
-		case ply::float64:
-			return qi::omit[qi::double_];
-		}
-	}
-
-	rule_type operator()(ply::list const& property) const
-	{
-		assert(!"list not yet implemented!");
-		return rule_type();
-	}
-};
+//template<typename Iterator, typename Skipper>
+//class visitor<Iterator, Skipper, void> : public visitor_base<Iterator, Skipper, void>
+//{
+//	typedef visitor_base<Iterator, Skipper, void> super;
+//	typedef typename super::rule_type rule_type;
+//
+//public:
+//	visitor(ply::format format) :
+//		super(format)
+//	{
+//	}
+//
+//	rule_type operator()(ply::scalar property) const
+//	{
+//		switch (property)
+//		{
+//		case ply::uint8:
+//			return qi::omit[qi::uint_parser<unsigned char>()];
+//		case ply::uint16:
+//			return qi::omit[qi::ushort_];
+//		case ply::uint32:
+//			return qi::omit[qi::uint_];
+//		case ply::uint64:
+//			return qi::omit[qi::ulong_long];
+//		case ply::int8:
+//			return qi::omit[qi::int_parser<char>()];
+//		case ply::int16:
+//			return qi::omit[qi::short_];
+//		case ply::int32:
+//			return qi::omit[qi::int_];
+//		case ply::int64:
+//			return qi::omit[qi::long_long];
+//		case ply::float32:
+//			std::cout << "blubb" << std::endl;
+//			return qi::omit[qi::float_];
+//		case ply::float64:
+//			return qi::omit[qi::double_];
+//		}
+//	}
+//
+//	rule_type operator()(ply::list const& property) const
+//	{
+//		assert(!"list not yet implemented!");
+//		return rule_type();
+//	}
+//};
 
 //template<typename T, typename U>
 //void create_parser()

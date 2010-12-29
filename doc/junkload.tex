@@ -6,7 +6,7 @@
 \usepackage{times}
 %
 \usepackage{listings}
-\lstset{basicstyle=\small} %,stringstyle=\ttfamily}
+\lstset{basicstyle=\ttfamily\scriptsize\mdseries}
 %
 \usepackage{hyperref}
 \hypersetup{colorlinks=true}
@@ -107,7 +107,7 @@ this can be achieved with generic programming\\
 
 \section{approach}
 %
-\begin{lstlisting}
+\begin{lstlisting}[frame=tb]
 ply      = "ply" EOL "format" format DOUBLE EOL element* "end_header" EOL;
 element  = "element" STRING INT EOL property*;
 property = "property" (list | scalar) STRING EOL;

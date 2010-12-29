@@ -18,7 +18,7 @@ class element_grammar: public boost::spirit::qi::grammar<Iterator, Element(), Sk
 {
 	typedef parser_factory<Iterator, Skipper> factory;
 
-	typedef qi::rule<Iterator, void(Element&), Skipper> property_parser;
+	typedef qi::rule<Iterator, void(Element&), qi::locals<std::size_t>, Skipper> property_parser;
 
 	typedef typename factory::template rules<Element>::type property_rules;
 
@@ -40,6 +40,8 @@ class element_grammar: public boost::spirit::qi::grammar<Iterator, Element(), Sk
 			{
 				boost::fusion::at<I>(rules) = boost::apply_visitor(visitor(ply::ascii), property.type);
 				parser = boost::fusion::at<I>(rules)(ph::at_c<I::value>(qi::_r1));
+
+				std::cout << "match: " << property.name << std::endl;
 			}
 		}
 
@@ -57,11 +59,8 @@ public:
 		start = qi::eps;
 		for (int i = 0; i < element.properties.size(); ++i)
 		{
-			typedef typename factory::template visitor<void>::type omit_visitor;
-			property_parsers[i] = boost::apply_visitor(omit_visitor(ply::ascii), element.properties[i].type);
-
+			assign_omit_parser(property_parsers[i], ply::ascii, element.properties[i]);
 			boost::mpl::for_each<indices>(assign_grammar(rules, property_parsers[i], element.properties[i]));
-
 			start = start.copy() > property_parsers[i](qi::labels::_val);
 		}
 
