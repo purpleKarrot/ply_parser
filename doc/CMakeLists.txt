@@ -19,4 +19,8 @@ add_documentation(
   chunk-ref.xml
   )
 
-add_latex_document(junkload.tex DEFAULT_PDF MANGLE_TARGET_NAMES)
+add_latex_document(junkload.tex
+  BIBFILES junkload.bib
+  DEFAULT_PDF
+  MANGLE_TARGET_NAMES
+  )

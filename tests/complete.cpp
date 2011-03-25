@@ -15,6 +15,7 @@ typedef boost::array<int, 3> triangle;
 
 struct face_
 {
+	int dummy;
 	triangle vertex_indices;
 };
 
@@ -26,19 +27,22 @@ BOOST_FUSION_ADAPT_STRUCT(vertex_,
 		(float, confidence)
 )
 
-BOOST_FUSION_ADAPT_STRUCT(face_, (triangle, vertex_indices) )
+BOOST_FUSION_ADAPT_STRUCT(face_,
+		(int, dummy)
+		(triangle, vertex_indices)
+)
 
 BOOST_AUTO_TEST_CASE(complete)
 {
-	ply::loader<junk::error_loader> loader("bunny.ply");
+	//typedef ply::loader<junk::simple_loader> loader_type;
+	typedef ply::loader<junk::error_loader> loader_type;
+
+	loader_type loader("bunny.ply");
 
 	std::vector<vertex_> vertices;
 	loader.parse_element(0, std::back_inserter(vertices));
 
-//	std::vector<face_> faces;
-//	loader.parse_element(1, std::back_inserter(faces));
-
-	std::vector<vertex_> faces;
+	std::vector<face_> faces;
 	loader.parse_element(1, std::back_inserter(faces));
 
 	BOOST_CHECK_EQUAL(vertices.size(), loader.elements()[0].count);
