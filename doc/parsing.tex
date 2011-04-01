@@ -190,25 +190,50 @@ endforeach
 finalize grammar
 \end{lstlisting}
 
-The grammar is initialized with an empty rule. 
+First of all, the grammar is initialized with a parser that matches a zero
+length string (epsilon). While iterating over all input elements, subrules are
+initialized and appended. Optionally, the grammar may be finalized in the end by
+appending a rule that matches delimiter symbols like line endings.
 
+To initialize a subrule, we iterate over the \texttt{Output} types, checking
+for each element whether the name equals the name that we expect. If the names
+match, the subrule is initialized with a parser that matches a string
+specified by the current input and returns a value of the type specified by the
+current output into the \texttt{Output} sequence at the right position, using a
+lazy reference. It cannot be guaranteed that such an element exists. Therefore,
+all subrules have to be initialized before with parsers that match a string
+specified by the current input but do not return anything. From that follows
+that the subrule needs to be able to store a parser that optionally initializes
+a value, hence the \texttt{void(T\&)} signature: It would be impossible to
+dynamically change the signature form \texttt{void()} to \texttt{T()} when the
+names match.
+
+While looping over the input sequence may be implemented as a conventional
+\texttt{for}-construct, the inner loop needs to be unrolled at compile time,
+using template metaprogramming, since it iterates over a sequence of types
+rather than values.
 
 The grammar generation can be completely abstracted from the application
 developer. The information about where the result should be written to, gives
 the parser library the complete information about the type of the expected
 result. There is no need to require the application developer to register
-the structure and its elements to the parser library.
+the structure and its elements directly to the parser library.
 
+Listing \ref{interface} shows an example of how a parser function could be
+implemented that parses a string into a user defined type \texttt{Output}. The
+content of the string is described by an input sequence of element descriptions.
+The grammar generation is hidden as an implementation detail that the
+application developer does not need to care about.
 
-
-
-
-
-The resulting grammar is used to create a
-
-We start it with an uppercase letter to denote it is a type. 
-
-We say it has a signature of \texttt{Output()}.
+\begin{lstlisting}[frame=tb,label=interface,caption=parser interface]
+template<template Output>
+void parse(const std::string& string,
+  const input& header, Output& output)
+{
+  parser<Output> p(header);
+  output = p.parse(string);
+}
+\end{lstlisting}
 
 
 
