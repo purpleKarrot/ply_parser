@@ -17,6 +17,7 @@ include(AddReference)
 include(AddDocumentation)
 set(THIS_PROJECT_NAME JunkLoad)
 add_subdirectory(doc)
+add_subdirectory(parsing)
 
 add_subdirectory(externals)
 add_subdirectory(tests)

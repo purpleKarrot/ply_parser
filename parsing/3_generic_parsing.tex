@@ -1,0 +1,133 @@
+\section{Generic Parsing}
+
+Say we want to parse an ASCII file that in each line has three floating point
+numbers specifying a position in cartesian coordinates followed by three
+integers specifying a color in RGB-format. The data should be loaded into a
+vertex type that we specify as:
+
+\begin{lstlisting}[frame=tb,label=vertex,caption=Vertex Example]
+struct vertex
+{
+  float x, y, z;
+  uchar b, g, r;
+};
+\end{lstlisting}
+
+Implementing a parser for this file format would be straight forward. But if we
+now take a file that provides the position in double precision, or two
+dimensional positions, or color with an alpha channel, or binary data, our
+parser would crash or yield undefined behavior.
+
+If we augment the data file with some header information that describes the
+content of the file, there are multiple ways to handle this additional
+information.
+
+The header data could be used merely as a check that the file content exacly
+matches the expected type. If the data does not match, an error is reported and
+parsing the file is aborted. This is better than a crash, but under certain
+conditions unneccessarily strict. It would be safe to just ignore data that is
+present in the file stream but not requested by the client. Similarly, data that
+is required by the client but not existent in the file could be initialized to a
+default; data that is present in a different type, encoding or order than
+expected could be converted or reordered. There is generally no need to not
+support files or streams that do not exacly match.
+
+Alternatively, a binary block of memory can be allocated depending on the
+information contained in the file header. The parser then fills this block with
+the parsed data. The client may access the data by adding an offset to the start
+address and reinterpret the type with a casting operator. This approach relaxes
+all type checking mechanisms of the compiler and puts the burdon of using the
+types correctly on the application developer. Apart from providing no
+type-safety at all, this approach also requires all parsed data to be bufferd.
+
+In yet another approach the application developer \enquote{tells} the library
+what data she wants and where it should be written to. The library parses the
+file, converts the parsed data on the fly, and writes it into the area that the
+client provides. In the C programming language, we would register the result
+values as a combination of \texttt{void*} pointers and enumerated values
+specifying the type. Again, there is no type safety and the burdon of using the
+appropriate enums lies on the application developer.
+
+In C++, we can waive the parameter for the type if we pass the result value by a
+mutable reference. By the use of Template Metaprogramming techniques described
+in \cite{Abrahams:2004:CTM:1044941} we can deduce both the address and the type
+of of the value that should be initialized by the parser. This not only
+disburdens the application developer, but also the library developer from
+reinterpreting the type of the passed parameter; thus the library can be
+implemented in a type safe manner.
+
+And we can even go a step further: From a result type such as the
+\texttt{vertex} structure from Listing \ref{vertex} we can deduce the amount,
+the types and even the names of its members using pure template metaprogramming. 
+This will allow us to implement a parsing library that provides an interface
+similar to the one presented in Listing \ref{interface}. Contrary to the
+example, a real library should generate the parser once and use it multiple
+times.
+
+\begin{lstlisting}[frame=tb,label=interface,caption=parser interface]
+template<template Output>
+void parse(const std::string& data,
+  const input_t& input, Output& output)
+{
+  parser<Output> p(input);
+  output = p.parse(data);
+}
+\end{lstlisting}
+
+The callee on this function will pass three pieces of information through the
+parameters. The data to be parsed is a string of text or more generally a range
+of arbitrary data. The content of this data is described by the the
+\texttt{input} parameter. This is usually a list of name-value pairs, where the
+value enumerates the type of each element as shown in Listing \ref{element}.
+Last but not least the \texttt{output} parameter specifies both the type and the
+location of the result of the parsing procedure.
+
+\begin{lstlisting}[frame=tb,label=element,caption=element type]
+struct element
+{
+  enum { efloat, edouble, eint, ... } type; 
+  std::string name;
+};
+typedef std::vector<element> input\_t;
+\end{lstlisting}
+
+The parser will be generated from the input list and the output type
+defininition only. It will be used once or multiple times to parse the data
+stream. Listing \ref{algorithm} shows the algorithm that is used to construct
+the parser as a mixture of pseudo code and Backus-Naur Form (BNF).
+
+First of all, the grammar is initialized with a parser that matches a zero
+length string (epsilon). While iterating over all input elements, rules are
+initialized and appended to the grammar. Optionally, the grammar may be
+finalized in the end by appending a rule that matches delimiter symbols like
+line endings.
+
+\begin{lstlisting}[mathescape, frame=tb, label=algorithm,
+                   caption=grammar construction algorithm]
+GRAMMAR ::= $\epsilon$
+foreach element i in input
+  RULE ::= omit_parser(i.type)
+  foreach o in Output
+    if i.name equals o.name
+      RULE ::= assign_parser(i.type, o.value)
+    endif
+  endforeach
+  GRAMMAR ::= GRAMMAR' RULE
+endforeach
+GRAMMAR ::= GRAMMAR' EOL
+\end{lstlisting}
+
+To initialize a rule, we iterate over the elements of the output, checking for
+each element whether the name equals the name that is expected in the input. If
+the names match, the rule is initialized with a parser that matches a string
+specified by the current input type and returns a value of the type specified by
+the current output element into the right position. It cannot be guaranteed that
+such an element exists. Therefore, all rules have to be initialized before with
+parsers that match a string specified by the current input but do not return
+anything, ignoring the result.
+
+Implementation-wise, looping over the input sequence is a conventional
+\texttt{for}-construct. The inner loop however needs to be unrolled at compile
+time, using template metaprogramming, since it iterates over a sequence of types
+rather than values.
+

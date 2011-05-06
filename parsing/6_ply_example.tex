@@ -1,0 +1,99 @@
+\section{PLY Parser}
+
+The PLY file format was developed at Stanford University. The original goal of
+the PLY format was to ``provide a format that is simple and easy to implement,
+but that is general enough to be useful for a wide range of models''. The format
+is actually general to such an extent, that it is not possible to make any
+assertion about the content of a file until the file header has been parsed.
+Consequently, it is impossible to support the full PLY format in a type-safe
+manner.
+
+A PLY-file constist
+
+
+Writing a loader for a given PLY file is a relatively easy task. The types of
+the content are known and the file header is used merely as a check that the
+right file is opened. This loader can provide very high efficiency, but fails
+loading any other file.
+
+\begin{lstlisting}[float=*,frame=tb,caption=EBNF Grammar of the PLY file header]
+ply      ::= "ply" EOL "format" format DOUBLE EOL element* "end_header" EOL
+element  ::= "element" STRING INT EOL property*
+property ::= "property" (list | scalar) STRING EOL
+list     ::= "list" size scalar
+format   ::= "ascii" | "binary_little_endian" | "binary_big_endian"
+size     ::= "uint8" | "uint16"| "uint32" | "uint64"
+scalar   ::= size | "int8" | "int16" | "int32" | "int64" | "float32" | "float64"
+\end{lstlisting}
+
+\begin{lstlisting}[float=*,frame=tb,caption=C++ Grammar of the PLY file header]
+ply      %= "ply" > eol > "format" > format > double_ > eol > *element > "end_header" > eol;
+element  %= "element" > *(char_ - int_) > int_ > eol > *property;
+property %= "property" > (list | scalar) > *(char_ - eol) > eol;
+list     %= "list" > size > scalar;
+format   %= "ascii" | "binary_little_endian" | "binary_big_endian";
+size     %= "uint8" | "uint16"| "uint32" | "uint64";
+scalar   %= size | "int8" | "int16" | "int32" | "int64" | "float32" | "float64";
+\end{lstlisting}
+
+\subsection{Example use of the library}
+
+Given you want to parse the vertex element of PLY files into a struct composed
+of three Cartesian coordinates and three color components. To use this struct in
+the proposed library, you need to adapt it as a Boost.Fusion sequence as shown
+in Listing 2. Note that no change is required to the struct declaration itself.
+
+\begin{lstlisting}[frame=tb,caption=Adapting a vertex struct]
+struct vertex {
+	float x, y, z;
+	unsigned char red, green, blue;
+};
+
+BOOST_FUSION_ADAPT_STRUCT(vertex,
+	(float, x)
+	(float, y)
+	(float, z)
+	(unsigned char, red)
+	(unsigned char, green)
+	(unsigned char, blue)
+)
+\end{lstlisting}
+
+The actual use of the library is shown in Listing 3. A \texttt{ply\_loader}
+object is created and given the filename of the file to parse. The
+\texttt{ply\_loader} can be configured by two \emph{policies}. Information about
+policy base programming can be found in \cite{Alexandrescu:2001:MCD:377789}. The
+\emph{error reporting policy} controls the detail level of errors to be reported
+while the \emph{decompression policy} controls the stream decompression.
+
+The two policies affect the iterator type that is used internally. The detailed
+error reporting policy requires the current line of the file to be stored. When
+this behavior is not desired, it can be turned off simply by using
+\texttt{error\_simple} instead. The optional file decompression policy enables
+bzip2, gzip and zlib decompression of streams. No decompression is performed
+when this template parameter is omitted.
+
+\begin{lstlisting}[float=*, frame=tb, caption=Example use of the library]
+ply_loader<error_detailed, decompress_gzip> loader("bunny.ply.gz");
+std::vector<vertex> vertices;
+loader.parse_element(0, std::back_inserter(vertices));
+\end{lstlisting}
+
+The vertex definition of the Stanford Bunny's file header is shown in Listing
+4. The properties do not match the declaration of the struct in Listing 2. The
+library constructs a grammar at runtime that matches five consecutive floats
+while the first three values are assigned to the coordinates, and the remaining
+two are silently ignored. The colors will not be set. The colors can be set to a
+default value, by defining a default constructor in the vertex struct of Listing
+2.
+
+\begin{lstlisting}[frame=tb,
+  caption=Stanford Bunny's definition of the vertex element]
+element vertex 35947
+property float x
+property float y
+property float z
+property float confidence
+property float intensity
+\end{lstlisting}
+

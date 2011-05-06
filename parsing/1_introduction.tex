@@ -1,0 +1,26 @@
+\section{Introduction}
+
+In the context of data storage and transmission, parsing plays a fundamental
+role. Whenever a file is loaded from a disk or a network protocol is
+interpreted, the file or stream content needs to be parsed and converted into a
+data structure or object.
+
+In simple cases, the file content is an exact representation of the data
+structure. More general file formats and protocols provide a \emph{header}
+information that describes the content of the \emph{body}.
+
+A generic parser should be able to parse the body of a file or network packet,
+with respect to the information from the respective header, thus generate a
+parser from the formal grammar specified by the header. Because knowledge about
+this grammar is deferred until runtime, let us call it a \emph{dynamic grammar}.
+
+The application developer that uses a parser library specifies a class or data
+structure that should be initialized by the parser. The parser has to initialize
+this structure, no matter what the contents of the file really are. Because this
+structure defines a type and C++ is a statically typed language, the semantics
+of the parser is \emph{static}.
+
+In this paper I present an approach of building a general parser from a dynamic
+grammar and static semantics. As an example application, I demonstrate a parser
+for the Polygon File Format (PLY) using the techniques described in this paper.
+

@@ -1,0 +1,28 @@
+\section{Conclusion}
+
+Two parsing libraries for PLY files have been analyzed. Neither of them could
+provide the flexibility, ease of use and safety to make it usable as a file
+loader for a distributed rendering application.
+
+The proposed library does not sacrifice type safety while being extremely
+generic. Using it does not require the registration of any callback functions
+and is thus much less complex  than using libply.
+
+The implementation itself is extremely complex. While completely abstracted from
+the programmer, the library needs to handle expressions for all possible
+property types. This provides very high flexibility. The impact in performance
+of this complexity still has to be investigated. It is also questionable whether
+this high flexibility is really required.
+
+As stated before, implementing a loader for a given PLY file is an easy task
+compared to implementing a reusable parser library. A reusable parser library
+provides worse performance compared to a specifically tailored parser and
+negligible benefit: It still fails to load files that contain different content
+than the client expects.
+
+An alternative approach would be to write a program that creates a parser
+library for a specific file by evaluating its header. This parser library
+generator then could be included in the build process of a rendering
+application. It would facilitate the development of PLY parsers, while still
+providing optimal performance.
+

@@ -1,0 +1,17 @@
+\section{Generic Programming}
+
+Generic programming is about writing code that is independent of the types of
+objects being manipulated. The \texttt{memcpy()} function of the C standard
+library is generalized at the price of type safety by the use of \texttt{void*}.
+In C++, class and function templates make the generalization possible without
+sacrificing type safety
+\cite{Alexandrescu:2001:MCD:377789,Meyers:2005:ECS:1051335}.
+
+The set of requirements consisting of valid expressions, associated types,
+invariants and complexity guarantees is summarized as a \emph{concept}. A type
+that satisfies the requirements is said to \emph{model the concept}. A concept
+can extend the requirements of another concept, which is called
+\emph{refinement} \cite{gregor08:devx_concepts}. The concepts used in the C++
+Standard Library are documented at the SGI STL
+site\footnote{\url{http://www.sgi.com/tech/stl/table_of_contents.html}}.
+

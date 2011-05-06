@@ -1,0 +1,116 @@
+\section{Implementation}
+
+Implementing the parser is realized using Qi from the Boost.Spirit library. One
+improtant feature of Qi is that it allows to reassign rules as shown in listing
+\ref{reassign}. In the second line we take a rule, copy it\footnote{otherwise
+this operation generates a recursive parser}, append another terminal and assign
+the resulting parser to the rule, overiding its previous value. 
+
+\begin{lstlisting}[frame=tb,label=reassign,caption=reassigning rules]
+RULE ::= TEMINAL1
+RULE ::= RULE' TERMINAL2
+\end{lstlisting}
+
+Further used libraries are Boost.Fusion and Boost.MPL for template
+metaprogramming. Also, some functional programming with Boost.Phoenix is
+utilized.
+
+As was described before, the parser will be generated from two components. The
+first component is the type which the parser will return. We call this type
+\texttt{Output}, starting with a capital letter to denote it is a generic type.
+\texttt{Output} is required to model the \texttt{Sequence} Concept defined by
+the Boost.Fusion library to allow us to inspect its elements with template
+metaprogramming.
+
+The second component is a dynamically sized list of \texttt{struct element}
+shown in listing \ref{element}. This list is usually filled by parsing the
+header information. We call this list \texttt{input\_t}, in all lower case, to
+denote that its type is specificied.
+
+For the parser class, we use \texttt{Output} as a template argument and pass
+\texttt{input\_t} to the constructor. Internally, we create a rule for each
+element of \texttt{input\_t}. Each rule will parse a type depending on the
+\texttt{type} enumerator and it will have a semantic action depending on
+\texttt{Output}. These rules will be chained by appending them to the grammar
+as shown in listing \ref{reassign}.
+
+In Qi, each nonterminal such as a rule has a signature, the same way as a
+function has a signature. The signature specifies the semantic action of the
+rule. Assigning a parser to a rule requires that the signature matches. 
+Invoking a nonterminal yields in another nonterminal that inherits all passed
+parameters as attributes. Given a nonterminal with a signature
+\texttt{float(int)} invoked with an \texttt{int} argument yields a nonterminal
+with a signature \texttt{float()}.
+
+The parser construction follows the algorithm shown in listing \ref{algorithm}.
+However, since rules must hold terminals and subrules by reference, it is not
+possible to return subrules from a factory function, which would be the
+preferred method to generate objects depending on an enumerated value. Further,
+semantic actions require the types of the rules to be specified at compile time.
+
+It follows that the parser needs to hold all rules that might require a semantic
+action by value. This is exactly one rule per element in \texttt{input\_t} plus
+one for each element in \texttt{Output} whose name matches an element in
+\texttt{input\_t}. Wether the names match is unknown at compile time, so we need
+to provide rules for all elements of \texttt{Output}, accepting the fact that
+they might not be used.
+
+The amount of rules depending on \texttt{input\_t} is dynamic, so we generate an
+array of rules at runtime. Each of these rules may or may not initialize any
+element of \texttt{Output}. We therefore use \texttt{void(Output\&)} as a
+signature for all of these rules.
+
+To instanciate the rules for the elements of \texttt{Output}, we transform
+the \texttt{Output} sequence into a rule sequence that contains a rule with a
+signature of \texttt{void(T\&)} for each type \texttt{T} in \texttt{Output}.
+
+%It cannot be guaranteed that such an element exists. Therefore,
+%all subrules have to be initialized before with parsers that match a string
+%specified by the current input but do not return anything. From that follows
+%that the subrule needs to be able to store a parser that optionally initializes
+%a value, hence the \texttt{void(T\&)} signature: It would be impossible to
+%dynamically change the signature form \texttt{void()} to \texttt{T()} when the
+%names match.
+
+Looking at the parser generation of listing \ref{algorithm} in more detail, we
+iterate in a dynamic loop over the elements of the \texttt{input\_t} list. Each
+element has a corresponding nonterminal called \emph{input rule} with a
+signature of \texttt{void(Output\&)}. This rule is initialized with a parser
+that parses but discards a value corresponding to the type enumeration of the
+current element.
+
+In a nested, static loop we iterate over the \texttt{Output} sequence. Each
+element \texttt{T} of the \texttt{Output} sequence has a corresponding
+nonterminal called \emph{output rule} with a signature of \texttt{void(T\&)}.
+If and only if the name of the current element of the \texttt{Output} sequence
+equals the name of the current element of the \texttt{input\_t} list, the
+\emph{output rule} is initialized with a parser that parses a value
+corresponding to the type enumeration of the current element of the
+\texttt{input\_t} list and stores it in the local attribute. This attibute is
+inherited by invoking the \emph{output rule} with a lazy element accessor of
+\texttt{Output}, which yields a nonterminal with a signature
+\texttt{void(Output\&)}. This nonterminal is assigned to the \emph{input rule},
+overiding its previous value.
+
+To append the \emph{input rule} to the grammar, it is invoked with the
+\texttt{Output} value that will hold the result of the parser which yields a
+nonterminal with a signature of \texttt{void()}. Concatenating two parsers with
+a signature of \texttt{void()} yields a nonterminal with the same signature,
+which makes it possible to assign the resulting nonterminal to the grammar.
+
+Initializing the input and output rules with a parser is done via a function
+similar to a factory. The rule that will hold the parser is passed as a mutable
+reference instead of being initialized by the return value to avoid slicing.
+
+%The grammar generation can be completely abstracted from the application
+%developer. The information about where the result should be written to, gives
+%the parser library the complete information about the type of the expected
+%result. There is no need to require the application developer to register
+%the structure and its elements directly to the parser library.
+
+%Listing \ref{interface} shows an example of how a parser function could be
+%implemented that parses a string into a user defined type \texttt{Output}. The
+%content of the string is described by an input sequence of element descriptions.
+%The grammar generation is hidden as an implementation detail that the
+%application developer does not need to care about.
+

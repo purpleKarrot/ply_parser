@@ -1,0 +1,39 @@
+\section{Related Work}
+
+\cite{Grune:1990:PTP:130365} defines the term \emph{parsing} as \enquote{the
+process of structuring a linear representation in accordance with a given
+grammar}. From a given grammar, there are generally three ways to generate a
+parser:
+
+The grammar can be passed to a team of programmers that craft the parser by
+hand, potentially following a specification. It is advisable, though not
+strictly required, to formally specify the grammar. This approach is error prone
+and requires acceptance testing.
+
+If the grammar is formally specified, the parser generation can be automated.
+Tools like ANTLR or Lex/YACC generate source code from a grammatical
+description \cite{Johnson75yacc:yet, Parr95antlr:a}. This approach is more
+flexible and less prone to programming errors compared to a hand crafted
+solution. If a modification of the parser's behavior is desired, all that needs
+to be tweaked is the description of the grammar. The code itself is then
+automatically regenerated from the specification.
+
+Yet another approach is to embed the formal grammar directly into the source
+code in a domain specific embedded language (e.g. Qi from the Boost.Spirit
+library).
+
+What all of these approaches have in common, is that they operate on the source
+code level. It follows, that they all provide static type-safety, but also
+static behavior! In case our knowledge about the grammar is deferred until
+runtime, we cannot depend on generated source code, hand crafted or not.
+
+Regular expression processors such as the ones found in Awk, Perl, Ruby, and Tcl
+and described in \cite{Friedl:2006:MRE:1209014} are typical examples of parsers
+with dynamic behavior. The processor is initialized at runtime with a string if
+text that describes the grammar in regualar expression syntax. Instead of
+generating source code, the regular expression processor tokenizes an input
+string of text into substrings.
+
+The limitation to strings of text in the input and output frustrates the use of
+regular expressions when type-safety is desired.
+
