@@ -8,15 +8,11 @@ assertion about the content of a file until the file header has been parsed.
 Consequently, it is impossible to support the full PLY format in a type-safe
 manner.
 
-A PLY-file constist
+In applications where type safety is demanded, the to be parsed type is
+precisely defined. This type information combined with the parsed header can be
+used to build a parser to read the file body.
 
-
-Writing a loader for a given PLY file is a relatively easy task. The types of
-the content are known and the file header is used merely as a check that the
-right file is opened. This loader can provide very high efficiency, but fails
-loading any other file.
-
-\begin{lstlisting}[float=*,frame=tb,caption=EBNF Grammar of the PLY file header]
+\begin{lstlisting}[float=*,label=plygrammar,frame=tb,caption=EBNF Grammar of the PLY file header]
 ply      ::= "ply" EOL "format" format DOUBLE EOL element* "end_header" EOL
 element  ::= "element" STRING INT EOL property*
 property ::= "property" (list | scalar) STRING EOL
@@ -26,7 +22,131 @@ size     ::= "uint8" | "uint16"| "uint32" | "uint64"
 scalar   ::= size | "int8" | "int16" | "int32" | "int64" | "float32" | "float64"
 \end{lstlisting}
 
-\begin{lstlisting}[float=*,frame=tb,caption=C++ Grammar of the PLY file header]
+The content of the PLY file body is specified in the file header whose EBNF
+grammar is shown in listing \ref{plygrammar}. It consists of multiple
+\emph{element} definitions that consist of a name, a number specifying the size
+and multiple \emph{property} definitions. Properties can be lists or single
+types and provide a name too. The file body contains all the element blocks and
+its properties one after another, each element block has the amont of elements
+specified by the size. In case the file body is in ASCII format, each property
+is terminated by a carriage return. Listing \ref{cube} shows a cube in PLY
+format.
+
+\begin{lstlisting}[label=cube,frame=tb,caption=PLY definition of a cube]
+ply
+format ascii 1.0
+comment author: anonymous
+comment object: another cube
+element vertex 8
+property float32 x
+property float32 y
+property float32 z
+property red uint8
+property green uint8
+property blue uint8
+element face 7
+property list uint8 int32 vertex_index
+element edge 5
+property int32 vertex1
+property int32 vertex2
+property uint8 red
+property uint8 green
+property uint8 blue
+end_header
+0 0 0 255 0 0
+0 0 1 255 0 0
+0 1 1 255 0 0
+0 1 0 255 0 0
+1 0 0 0 0 255
+1 0 1 0 0 255
+1 1 1 0 0 255
+1 1 0 0 0 255
+3 0 1 2
+3 0 2 3
+4 7 6 5 4
+4 0 4 5 1
+4 1 5 6 2
+4 2 6 7 3
+4 3 7 4 0
+0 1 255 255 255
+1 2 255 255 255
+2 3 255 255 255
+3 0 255 255 255
+2 0 0 0 0
+\end{lstlisting}
+
+\subsection{Reused and reusable parts}
+
+The example implementation of the PLY reader contains parts that are not
+specific to parsing PLY files, but can be reused to implement parsers that load
+files with similar content but different grammar:
+
+\begin{itemize}
+  \item A parser class that wraps a grammar and a range of \emph{Forward
+  Iterator}s. The class provides an invocation function that parses the
+  grammatical expression once.
+  \item A wrapper class around such a parser that models the \emph{Input
+  Iterator} concept. The wrapped parser is invocated each time the iterator is
+  incremented. It allows to copy parsed data to any output while parsing on the
+  fly.
+  \item A model of \emph{Output Iterator} that wraps another \emph{Output
+  Iterator} and two indices defining the \emph{range of interest}. Outside the
+  range of interest the wrapped iterator is not incremented and assignments are
+  silently consumed. This class can be used to extract chunks from a stream.
+\end{itemize}
+
+A few other reusable components that have been used in the implementation
+already are available in different libraries:
+
+\begin{itemize}
+  \item Streams that decompress data on the fly are provided by Boost.Iostreams.
+  \item A class that wraps an \emph{Input Iterator} range and models the
+  \emph{Forward Iterator} concept is provided by Boost.Spirit.
+  \item An iterator class that stores information about the current position to
+  provide helpful error messages when parsing fails is provided by Boost.Spirit.
+\end{itemize}
+
+\subsection{Implementation}
+
+On the highest abstraction level, the PLY file reader is implemented as a
+template class that is controlled by two policies: An error reporting policy and
+a compression policy. Information about policy base programming can be found in
+\cite{Alexandrescu:2001:MCD:377789}. The two policies affect the behaviour of
+the class. The error reporting policy controls the detail of error messages.
+When parsing fails, an exception will be thrown. When using
+\texttt{error\_detailed}, the failure message will contain the line and column
+numbers where the parsing error occured. When this behaviour is not desired,
+i.e. when performance is critical or the file body is binary, it can be turned
+off simply by using \texttt{error\_simple} instead. The optional file
+decompression policy enables bzip2, gzip and zlib decompression of streams.
+No decompression is performed when this template parameter is omitted.
+The constructor of the class takes a filepath to the to PLY file to be parsed.
+
+Internally, the two policies affect the iterator type that is used. The iterator
+type is wrapped in several layers. On the lowest layer, the file specified by
+the path is opened and a \texttt{istreambuf_iterator} is created. Depending on
+the decompression policy, the stream buffer of the file is used directly, or a
+\texttt{filtering_istreambuf} is initialized with a decompressor plus the file
+and then used as a stream buffer.
+
+Input stream buffer iterators model the \emph{Input Iterator} concept. Qi
+however requires an \emph{Forward Iterator} for certain backtracking. For this
+purpose, Qi provides the class \texttt{multi\_pass}, which wraps any input
+iterator and exposes a forward iterator. This class is used to wrap the stream
+buffer iterator.
+
+The detailed error reporting policy requires the current line of the file to be
+stored. To archive this, the forward iterator is wrapped by a
+\texttt{position\_iterator}. This iterator class is also provided by Spirit.
+
+%http://boost-spirit.com/home/articles/qi-example/tracking-the-input-position-while-parsing/
+
+Once the iterators are all set up, the header of the PLY file is parsed. Parsing
+the header is implemented with Qi. Note the similarity of the EBNF description
+in listing \ref{plygrammar} and the C++ implementation in listing
+\ref{plyspirit}.
+
+\begin{lstlisting}[label=plyspirit, float=*,frame=tb,caption=C++ Grammar of the PLY file header]
 ply      %= "ply" > eol > "format" > format > double_ > eol > *element > "end_header" > eol;
 element  %= "element" > *(char_ - int_) > int_ > eol > *property;
 property %= "property" > (list | scalar) > *(char_ - eol) > eol;
@@ -36,17 +156,50 @@ size     %= "uint8" | "uint16"| "uint32" | "uint64";
 scalar   %= size | "int8" | "int16" | "int32" | "int64" | "float32" | "float64";
 \end{lstlisting}
 
+The dynamic grammar construction happens when the user reads a block of
+elements. The \texttt{parse\_element} member function takes an
+\emph{Output Iterator} parameter. This gives a very high flexibility to the
+application developer because it allows writing the result into container
+stuctures such as \texttt{std::vector} or simple arrays, but also custom targets
+such as console output. The library can deduce the type of the result from this
+iterator and use it to generate a parser.
+
+The PLY parser library now has the dynamic description of the element block
+parsed from the header as well as the static result type deduced from the
+iterator parameter. I now follows the parser generation described in section 5.
+The resulting parser is wrapped into a class that models the
+\emph{Input Iterator} concept. Parsing the whole block of elements then boils
+down to a single call to \texttt{std::copy}.
+
+In case parsing fails, an exception is thrown. When the detailed error reporting
+policy is used, this exception is caught by the PLY parser, the failure message
+is extended by position information and the exception is rethrown. This produces
+error messages such as the one shown in listing \ref{error}.
+
+\begin{lstlisting}[label=error,frame=tb,caption=detailed parsing error message]
+Parsing error in file 'bunny.ply' line 27:
+4 27 foo 13 42
+     ^-- here
+\end{lstlisting}
+
+
 \subsection{Example use of the library}
 
 Given you want to parse the vertex element of PLY files into a struct composed
 of three Cartesian coordinates and three color components. To use this struct in
 the proposed library, you need to adapt it as a Boost.Fusion sequence as shown
-in Listing 2. Note that no change is required to the struct declaration itself.
+in Listing \ref{adapt}. Note that no change is required to the struct
+declaration itself.
 
-\begin{lstlisting}[frame=tb,caption=Adapting a vertex struct]
-struct vertex {
-	float x, y, z;
-	unsigned char red, green, blue;
+\begin{lstlisting}[label=adapt,frame=tb,caption=Adapting a vertex struct]
+struct vertex
+{
+	float x;
+	float y;
+	float z;
+	unsigned char red;
+	unsinged char green;
+	unsigned char blue;
 };
 
 BOOST_FUSION_ADAPT_STRUCT(vertex,
@@ -59,35 +212,15 @@ BOOST_FUSION_ADAPT_STRUCT(vertex,
 )
 \end{lstlisting}
 
-The actual use of the library is shown in Listing 3. A \texttt{ply\_loader}
-object is created and given the filename of the file to parse. The
-\texttt{ply\_loader} can be configured by two \emph{policies}. Information about
-policy base programming can be found in \cite{Alexandrescu:2001:MCD:377789}. The
-\emph{error reporting policy} controls the detail level of errors to be reported
-while the \emph{decompression policy} controls the stream decompression.
-
-The two policies affect the iterator type that is used internally. The detailed
-error reporting policy requires the current line of the file to be stored. When
-this behavior is not desired, it can be turned off simply by using
-\texttt{error\_simple} instead. The optional file decompression policy enables
-bzip2, gzip and zlib decompression of streams. No decompression is performed
-when this template parameter is omitted.
-
-\begin{lstlisting}[float=*, frame=tb, caption=Example use of the library]
-ply_loader<error_detailed, decompress_gzip> loader("bunny.ply.gz");
-std::vector<vertex> vertices;
-loader.parse_element(0, std::back_inserter(vertices));
-\end{lstlisting}
-
 The vertex definition of the Stanford Bunny's file header is shown in Listing
-4. The properties do not match the declaration of the struct in Listing 2. The
-library constructs a grammar at runtime that matches five consecutive floats
-while the first three values are assigned to the coordinates, and the remaining
-two are silently ignored. The colors will not be set. The colors can be set to a
-default value, by defining a default constructor in the vertex struct of Listing
-2.
+\ref{bunny}. The properties do not match the declaration of the struct in
+Listing \ref{adapt}. The library constructs a grammar at runtime that matches
+five consecutive floats while the first three values are assigned to the
+coordinates, and the remaining two are silently ignored. The colors will not be
+set. The colors can be set to a default value, by defining a default constructor
+in the vertex struct of Listing \ref{adapt}.
 
-\begin{lstlisting}[frame=tb,
+\begin{lstlisting}[label=bunny, frame=tb,
   caption=Stanford Bunny's definition of the vertex element]
 element vertex 35947
 property float x
@@ -95,5 +228,23 @@ property float y
 property float z
 property float confidence
 property float intensity
+\end{lstlisting}
+
+The actual use of the library is shown in Listing \ref{use}. The example uses
+detailed error reporting and gzip decompression. Note that the filename
+indicates that a gzip compressed file is given. The \texttt{parse\_element()}
+function parses the block of elements with index 0 into a vector of the vertex
+type from Listing \ref{adapt} using a back insert iterator. From this iterator,
+the sequence type is deduced to generate an appropriate grammar. Passing
+\texttt{vertex*} instead of a back insert iterator would work identically, since
+\texttt{vertex*} also models the Output Iterator concept and the same type can
+be deduced.
+
+\begin{lstlisting}[label=use, frame=tb, caption=Example use of the library]
+ply_loader<error_detailed, decompress_gzip>
+	loader("bunny.ply.gz");
+std::vector<vertex> vertices;
+loader.parse_element(0,
+	std::back_inserter(vertices));
 \end{lstlisting}
 

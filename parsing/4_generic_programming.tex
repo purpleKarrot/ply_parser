@@ -15,3 +15,40 @@ can extend the requirements of another concept, which is called
 Standard Library are documented at the SGI STL
 site\footnote{\url{http://www.sgi.com/tech/stl/table_of_contents.html}}.
 
+The Standard Template Library (STL), which is part of the C++ Standard Library
+is a prime example for generic programming. It provides generic algorithms,
+containers, functors, and iterators. In the STL all elements of a specified
+container are of the same type. Algorithms operate on iterators that iterate
+over a container. While the type is static at compile time, algorithms are
+executed at runtime.
+
+Inspired by the STL, the Metaprogramming Library (MPL) provides
+\emph{compile-time} algorithms, sequences and metafunctions. MPL sequences
+correspond to STL containers. While STL containers contain value elements of the
+same type, sequences in the MPL contain types only, with no associated value.
+Algorithms and metafunctions are both evaluated at compile time. Sequences in
+MPL consist of pure type information. When instantiated, all sequences are empty
+structs, without any members. The do not provide any information at runtime.
+
+Fusing compile time metaprogramming with runtime programming, the Fusion library
+provides algorithms and containers for heterogenous collections of data. Each
+sequence in Fusion is a valid MPL sequence. Thus, all type manipulating
+metafunctions from MPL may be reused. Instantiating a Fusion sequence
+instanciates all of its elements and Fusion provides algorithms that operate on
+these elements at runtime using an iterator concept similar to the STL.
+
+Custom classes and structs may be adapted to Fusion nonintrusively, i.e. without
+modifying the class or struct itself. Once a class or struct is adapted, it may
+be used just like any other sequence in Fusion.
+
+Spirit is a set of object-oriented libraries for parsing and output generation.
+They are implemented as Domain Specific Embedded Languages (DSEL) using template
+metaprogramming. Grammars and formal descriptions may be written directly in C++
+in a format similar to Extended Backus Naur Form (EBNF).
+
+Phoenix is a DSEL that mimicks the host language itself. It introduces the
+Functional Programming paradigm in C++.
+
+MPL, Fusion, Spirit and Phoenix are parts of the peer-reviewed Boost Libraries 
+collection.
+
